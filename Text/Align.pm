@@ -1,8 +1,9 @@
-# $Id: Align.pm,v 1.11 2000/02/28 23:17:44 mgjv Exp $
+# $Id: Align.pm,v 1.12 2000/02/28 23:29:38 mgjv Exp $
 
 package GD::Text::Align;
 
-$GD::Text::Align::VERSION = '0.61';
+$GD::Text::Align::VERSION = 
+	(q($Revision: 1.12 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 =head1 NAME
 

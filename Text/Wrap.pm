@@ -1,8 +1,9 @@
-# $Id: Wrap.pm,v 1.11 2000/02/28 23:17:44 mgjv Exp $
+# $Id: Wrap.pm,v 1.12 2000/02/28 23:29:38 mgjv Exp $
 
 package GD::Text::Wrap;
 
-$GD::Text::Wrap::VERSION = '0.63';
+$GD::Text::Wrap::VERSION =
+	(q($Revision: 1.12 $) =~ /\s([\d.]+)/ ? $1 : "0.0");
 
 =head1 NAME
 
@@ -330,7 +331,7 @@ sub _draw_justified_line
 
 
 #
-# Delegate all the woother methods to the GD::Text::Align method
+# Delegate all the other methods to the GD::Text::Align method
 use vars qw($AUTOLOAD);
 sub AUTOLOAD
 {
