@@ -26,14 +26,18 @@ GD::Text::Wrap - Wrap strings in boxes
       color       => $black,
       text        => $text,
   );
+  $wrapbox->set_font(gdMediumBoldFont);
   $wrapbox->set_font('cetus.ttf', 12);
   $wrapbox->set(align => 'left', left => 10, right => 140);
   $wrapbox->draw();
 
+  $gd->rectangle($wrap_box->get_bounds(), $color);
+
 =head1 DESCRIPTION
 
 GD::Text::Wrap provides an object that draws a formatted paragraph of
-text in a box on a GD::Image canvas.
+text in a box on a GD::Image canvas, using either a builtin GD font
+or a TrueType font.
 
 =head1 NOTES
 
@@ -91,8 +95,8 @@ sub _init
 {
     my $self = shift;
 
-	$self->{word} = GD::Text::Align->new($self->{gd}, text => 'Foo');
-	croak "Cannot allocate GD::Text::Align object" unless $self->{word};
+	$self->{render} = GD::Text::Align->new($self->{gd}, text => 'Foo');
+	croak "Cannot allocate GD::Text::Align object" unless $self->{render};
 
     $self->set(
 		colour => $self->{gd}->colorsTotal - 1,
@@ -102,7 +106,40 @@ sub _init
 
 =head2 $wrapbox->set( attribute => value, ... )
 
-set the value for an attribute. See L<"ATTRIBUTES>.
+set the value for an attribute. Valid attributes are:
+
+=over 4
+
+=item left, right
+
+The left and right boundary of the box to draw the text in. If
+unspecified, they will default to the left and right edges of the gd
+object.
+
+=item top
+
+The top of the box to draw the text in. It defaults to
+the top edge of the gd object if unspecified. Note that you cannot set
+the bottom. This will be automatically calculated, and can be retrieved
+with the C<get_bounds()> or the C<get()> method.
+
+=item line_space
+
+The number of pixels between lines. Defaults to 2.
+
+=item color, colour
+
+Synonyms. The colour to use when drawing the font. Will be initialised
+to the last colour in the GD object's palette.
+
+=item align, alignment
+
+Synonyms. One of 'justified' (the default), 'left', 'right' or 'center'.
+
+=item text
+
+The text to draw. This is the only attribute that you absolutely have to
+set.
 
 =cut
 
@@ -121,35 +158,29 @@ sub set
 			exists $attribs{$attrib} and 
 				$self->{$attrib} = $val, last SWITCH;
 			
-			$self->{word}->set($attrib => $val) and last SWITCH;
+			# If we don't have this attribute, maybe the GD::Text::Align
+			# object can use it (for colour mainly at the moment)
+			$self->{render}->set($attrib => $val) and last SWITCH;
 
 			carp "No attribute $attrib";
 		}
 	}
 }
 
-=head2 $wrapbox->set_font( font attributes );
-
-Set the font to use for this string. The arguments are either a GD
-builtin font (like gdSmallFont or GD::Font->Small) or the name of a
-TrueType font file and the size of the font to use.
-
-Returns true on success, and undef on an error. if an error is returned,
-$@ will contain an error message.
-
-=cut
-
-sub set_font
-{
-	my $self = shift;
-
-	# XXX check for errors and set error message
-	$self->{word}->set_font(@_);
-}
-
 =head2 $wrapbox->get( attribute );
 
-Get the current value of an attribute.
+Get the current value of an attribute. All attributes mentioned under
+the C<set()> method can be retrieved, as well as
+
+=over 4
+
+=item bottom
+
+Only available after a call to either C<get_bounds()> or C<draw()>. Both
+of the aforementioned return it anyway, so it would be silly, really, to
+ask for it with this.
+
+=back
 
 =cut
 
@@ -163,270 +194,181 @@ sub get
 	$self->{$attrib} 
 }
 
+=head2 $wrapbox->set_font( font attributes );
+
+Set the font to use for this string. The arguments are either a GD
+builtin font (like gdSmallFont or GD::Font->Small) or the name of a
+TrueType font file and the size of the font to use. See also the
+C<set_font()> method in L<GD::Text>.
+
+Returns true on success, and undef on an error. if an error is returned,
+$@ will contain an error message.
+
+=cut
+
+sub set_font
+{
+	my $self = shift;
+
+	# XXX check for errors and set error message
+	$self->{render}->set_font(@_);
+}
+
 =head2 $wrapbox->get_bounds()
 
-returns the bounding box of the box that will be drawn with the current
+Returns the bounding box of the box that will be drawn with the current
 attribute settings as a list. The values returned are the coordinates of
 the upper left and lower right corner.
 
 	($left, $top, $right, $bottom) = $wrapbox->get_bounds();
 
-returns an empty list on error.
+Returns an empty list on error.
 
 =cut
 
 sub get_bounds
 {
     my $self = shift;
-    $self->_set_text() or return;
-    return (
-        $self->{left}, $self->{top},
-        $self->{right}, $self->{bottom}
-    )
+	# This is -1, because we run the risk that people might not read the
+	# documentation, and try to pass numbers to the draw method. It's
+	# very unlikely that they'll pass -1
+    return $self->draw(-1);
 }
 
 =head2 $wrapbox->draw()
 
-Draw the box. Returns a true value on success, and undef on failure.
+Draw the box. Returns the same values as the C<getbounds()> method.
 
 =cut
 
 sub draw
 {
     my $self = shift;
-    $self->_set_text() or return;
+	my $dry_run = shift;
+
+	return unless $self->{text};
+
+	my $y = $self->{top} + $self->{render}->get('char_up');
+	my @line = ();
+	foreach my $word (split(' ', $self->{text}))
+	{
+        my $len = $self->{render}->width(join(' ', @line, $word));
+		if ($len > $self->{right} - $self->{left})
+		{
+			$self->_draw_line(0, $y, @line) 
+				unless $dry_run && $dry_run == -1;
+			@line = ();
+			$y += $self->{render}->get('height') + $self->{line_space};
+		}
+		push @line, $word;
+	}
+	# take care of the last line
+	$self->_draw_line(1, $y, @line) unless $dry_run && $dry_run == -1;
+
+	$self->{bottom} = $y + $self->{render}->get('char_down');
+    return (
+        $self->{left}, $self->{top},
+        $self->{right}, $self->{bottom}
+    )
+}
+
+sub _draw_line
+{
+	my $self = shift;
+	# we need the following for justification only
+	my $last = shift;
+	my $y = shift;
+
     for ($self->{align})
     {
-        /^just/i    and $self->_draw_justified(), last;
-        /^right/i   and $self->_draw_right(),     last;
-        /^center/i  and $self->_draw_center(),    last;
-        # default action
-        $self->_draw_left();
+		/^just/i	and !$last and do
+		{
+			$self->_draw_justified_line($y, @_);
+			last;
+		};
+        /^right/i   and do 
+		{
+			$self->{render}->set_text(join(' ', @_));
+			$self->{render}->set_halign('right');
+			$self->{render}->draw($self->{right}, $y);
+			last;
+		};
+        /^center/i  and do
+		{
+			$self->{render}->set_text(join(' ', @_));
+			$self->{render}->set_halign('left');
+			my $x = ($self->{right} + $self->{left} - 
+				$self->{render}->get('width')) / 2;
+			$self->{render}->draw($x, $y);
+			last;
+		};
+        # default action, left justification
+		$self->{render}->set_text(join(' ', @_));
+		$self->{render}->set_halign('left');
+		$self->{render}->draw($self->{left}, $y);
     }
-	return 1;
-}
-
-sub _set_text
-{
-    my $self = shift;
-    #$self->_set_font_params() or return;
-    my $line_len = 0;
-    my $line_max = $self->{right} - $self->{left};
-    my (@line, @lines);
-
-    foreach my $word (split ' ', $self->{text})
-    {
-        my $len = $self->{word}->width($word);
-        my $space_used = $line_len + $len + 
-			@line * $self->{word}->get('space');
-        if ($space_used > $line_max && @line)
-        {
-            push @lines, [$line_len, @line];
-            $line_len = 0;
-            @line = ();
-        }
-        $line_len += $len;
-        push @line, [$len, $word];
-    }
-    push @lines, [$line_len, @line] if (@line);
-
-	# XXX
-	$self->{font} = $self->{word}->get('font');
-	$self->{font_size} = $self->{word}->get('ptsize');
-
-    $self->{lines} = \@lines;
-    $self->{bottom} = $self->{top} + 
-		@lines * $self->{word}->{height} + 
-        $#lines * $self->{line_space};
-}
-
-sub _draw_left
-{
-    my $self = shift;
-    my $y = $self->{top} + $self->{word}->get('char_up');
-
-	$self->{word}->set_halign('left');
-
-    foreach my $line (@{$self->{lines}})
-    {
-        $self->_draw_left_line($line, $y);
-        $y += $self->{word}->get('height') + $self->{line_space};
-    }
-}
-
-sub _draw_left_line
-{
-    my $self = shift;
-    my ($line, $y) = @_;
-    my $x = $self->{left};
-
-    foreach my $token (@{$line}[1..$#$line])
-    {
-        my $len  = $token->[0];
-        my $word = $token->[1];
-		$self->{word}->set_text($word);
-		$self->{word}->draw($x, $y);
-        $x += $len + $self->{word}->get('space');
-    }
-}
-
-sub _draw_right
-{
-    my $self = shift;
-    my $y = $self->{top} + $self->{word}->get('char_up');
-
-	$self->{word}->set_halign('right');
-
-    foreach my $line (@{$self->{lines}})
-    {
-        $self->_draw_right_line($line, $y);
-        $y += $self->{word}->get('height') + $self->{line_space};
-    }
-}
-
-sub _draw_right_line
-{
-    my $self = shift;
-    my ($line, $y) = @_;
-    my $x = $self->{right};
-
-	foreach my $token (reverse @{$line}[1..$#$line])
-	{
-		my $len  = $token->[0];
-		my $word = $token->[1];
-		$self->{word}->set_text($word);
-		$self->{word}->draw($x, $y);
-		#$self->{gd}->stringTTF($self->{colour}, 
-			#$self->{font}, $self->{font_size}, 
-			#0, $x, $y, $word);
-		$x -= $len + $self->{word}->get('space');
-	}
-}
-
-sub _draw_center
-{
-    my $self = shift;
-    my $y = $self->{top} + $self->{word}->get('char_up');
-
-	$self->{word}->set_halign('left');
-
-    foreach my $line (@{$self->{lines}})
-    {
-        $self->_draw_center_line($line, $y);
-        $y += $self->{word}->get('height') + $self->{line_space};
-    }
-}
-
-sub _draw_center_line
-{
-    my $self = shift;
-    my ($line, $y) = @_;
-    my $line_max = $self->{right} - $self->{left};
-    my $space    = $line_max - $line->[0] - 
-		($#$line - 1) * $self->{word}->get('space');
-    my $x = $self->{left} + $space/2;
-
-    foreach my $token (@{$line}[1..$#$line])
-    {
-        my $len  = $token->[0];
-        my $word = $token->[1];
-
-		$self->{word}->set_text($word);
-		$self->{word}->draw($x, $y);
-
-        $x += $len + $self->{word}->get('space');
-    }
-}
-
-sub _draw_justified
-{
-    my $self = shift;
-    my $y = $self->{top} + $self->{word}->get('char_up');
-
-    foreach my $line 
-		(@{$self->{lines}}[0..($#{$self->{lines}} - 1)])
-    {
-		$self->{word}->set_halign('left');
-
-		$self->_draw_justified_line($line, $y);
-        $y += $self->{word}->get('height') + $self->{line_space};
-    }
-    $self->_draw_left_line($self->{lines}->[-1], $y);
 }
 
 sub _draw_justified_line
 {
-    my $self = shift;
-    my ($line, $y) = @_;
-    my $line_max = $self->{right} - $self->{left};
-    my $space = ($line_max - $line->[0])/($#$line - 1 || 1);
-    my $x = $self->{left};
+	my $self = shift;
+	my $y = shift;
+	my $x = $self->{left};
 
-    foreach my $token (@{$line}[1..($#$line - 1)])
-    {
-        my $len  = $token->[0];
-        my $word = $token->[1];
+	$self->{render}->set_halign('left');
 
-		$self->{word}->set_text($word);
-		$self->{word}->draw($x, $y);
+	my @lengths = ();
+	my $length = 0;
+	# first, calculate the lengths of the individual words
+	foreach my $word (@_)
+	{
+		$self->{render}->set_text($word);
+		push @lengths, $self->{render}->get('width');
+		$length += $self->{render}->get('width');
+	}
 
-        $x += $len + $space;
-    }
-    # The last word needs to be treated separately
-	$self->{word}->set_halign('right');
-	$self->{word}->set_text($line->[-1]->[1]);
-	$self->{word}->draw($self->{right}, $y);
+	# Calculate the average space between words
+	my $space = ($self->{right} - $self->{left} - $length)/$#_;
+
+	# Draw all the words, except the last one
+	for (my $i = 0; $i < $#_; $i++)
+	{
+		$self->{render}->set_text($_[$i]);
+		$self->{render}->draw($x, $y);
+		$x += $lengths[$i] + $space;
+	}
+
+	# Draw the last word
+	$self->{render}->set_halign('right');
+	$self->{render}->set_text($_[-1]);
+	$self->{render}->draw($self->{right}, $y);
 }
 
 $GD::Text::Wrap::VERSION;
 
-=head1 ATTRIBUTES
-
-=head2 left, right
-
-The left and right boundary of the box to draw the text in. If
-unspecified, they will default to the left and right edges of the gd
-object.
-
-=head2 top
-
-The top and bottom of the box to draw the text in. The top defaults to
-the top edge of the gd object if unspecified. Note that you cannot set
-the bottom. This will be automatically calculated, and can be retrieved
-with the get_bounds() method.
-
-=head2 font
-
-The font to use. This can be either a builtin GD font object (see L<GD>)
-or the path to a TrueType font file. The default is
-'/usr/share/fonts/ttfonts/Arialn.ttf'.
-
-=head2 font_size
-
-The size of the TrueType font. For builtins changing this has no effect.
-The default is 12.
-
-=head2 line_space
-
-The number of pixels between lines. Defaults to 2.
-
-=head2 color, colour
-
-Synonyms. The colour to use when drawing the font. Will be initialised
-to the last colour in the GD object's palette.
-
-=head2 align, alignment
-
-Synonyms. One of 'justified' (the default), 'left', 'right' or 'center'.
-
-=head2 text
-
-The text to draw. This is the only attribute that you absolutely have to
-set.
-
 =head1 BUGS
 
-None that I know of, but that doesn't mean much.
+None that I know of, but that doesn't mean much. There may be some
+problems with exotic fonts, or locales and character encodings that I am
+not used to.
+
+=head1 TODO
+
+At the moment, the only bit of the box that is allowed to be unspecified
+and in fact must be unspecified, is the bottom. If there is enough need
+for it, I might implement more flexibility, in that that you need to
+only specify three of the four sides of the box, and the fourth will
+be calculated.
+
+Automatic resizing of a TrueType font to fit inside a box when four
+sides are specified, or maybe some other nifty things.
+
+More flexibility in the interface. Especially draw needs some thought.
+
+More and better error handling.
+
+Better handling of GD version before and after 1.20. This may be by
+delegation to GD::Text.
 
 =head1 COPYRIGHT
 
