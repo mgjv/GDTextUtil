@@ -22,6 +22,10 @@ Requirements:
 
 	GD 1.20 or up, built for TTF (freetype) support.
 
+	Please note that the freetype version 2 libraries should be at
+	the latest level. Especially version 2.0.3 has an annoying bug
+	that rotates text twice.
+
 Installation:
 
     perl Makefile.PL
@@ -31,6 +35,16 @@ Installation:
     make install
 
 Demo(s) can be found in the demo directory.
+
+DO NOT PANIC when the tests fail. The various Freetype libraries often
+have a slightly different implementation of their rendering algorithms,
+resulting in slightly different bounding boxes for strings, and slightly
+diffferent looking images. If your tests fail, try a 'make demo', and
+visually compare demo/GDWrap.png (freshly generated image) and
+demo/GDWrap.ref.png (reference image). If they look reasonably similar,
+you can call the tests successful. Even if they don't look entirely
+similar, it may simply be because your font files are different from the
+ones I used to create GDWrap.ref.png. Please see the sources.
 
 Todo:
 

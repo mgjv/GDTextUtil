@@ -3,6 +3,8 @@ use strict;
 use GD;
 use GD::Text::Wrap;
 
+my $outfile = shift || "GDWrap.png";
+
 my $gd = GD::Image->new(400,240);
 my $white = $gd->colorAllocate(255,255,255);
 my $black = $gd->colorAllocate(  0,  0,  0);
@@ -48,9 +50,10 @@ $wp->set_font(gdMediumBoldFont, 12);
 $gd->filledRectangle($wp->get_bounds(210,120), $red);
 $wp->draw(210,120);
 
-print "Writing GDWrap.png\n";
+print "Writing $outfile\n";
 
-open(GD, '>GDWrap.png') or die "Cannot open GDWrap.png for write: $!";
+open(GD, ">$outfile") or die "Cannot open '$outfile' for write: $!";
 binmode GD ;
 print GD $gd->png();
 close GD;
+

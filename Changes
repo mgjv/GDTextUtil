@@ -1,5 +1,14 @@
 Revision history for Perl extension GDTextUtil.
 
+Sat Jan 19 2002
+
+- Added demo/GDWrap.ref.png
+- Changed demo/GDWrap.pl
+- Fixes so that set_font always uses absolute path for TTF. This to
+  circumvent some bug/misfeature in the freetype 2.0.x library.
+- Fixed up tests, to include approximate checking of bounds, instead of
+  requiring absolute match.
+
 Sun Oct 22 2000
 
 - Fixed draw(0,0) problem in GD::Text::Wrap

@@ -7,16 +7,16 @@ use Config;
 
 WriteMakefile(
     'DISTNAME'		=> 'GDTextUtil',
-	'NAME'			=> 'GD::Text',
+    'NAME'			=> 'GD::Text',
     'VERSION_FROM' 	=> 'Text.pm',
-	'PREREQ_PM'		=> { 'GD' => 0 },
+    'PREREQ_PM'		=> { 'GD' => 0 },
 	($] >= 5.005 ? (
-		 'ABSTRACT'     => 'text utilities for GD',
-		 'AUTHOR'       => 'Martien Verbruggen (mgjv@comdyn.com.au)',
-		):()
+	     'ABSTRACT'     => 'text utilities for GD',
+	     'AUTHOR'       => 'Martien Verbruggen (mgjv@comdyn.com.au)',
+	    ):()
 	),
 
-	clean			=> {FILES => "GDWrap.png"},
+    clean			=> {FILES => "GDWrap.png"},
 );
 
 sub MY::postamble
@@ -25,8 +25,8 @@ qq(
 .PHONY: demo
 demo: pure_all GDWrap.png
 GDWrap.png: demo/GDWrap.pl
-	\@$Config{'perlpath'} -Iblib/lib demo/GDWrap.pl
+	\@$Config{'perlpath'} -Iblib/lib demo/GDWrap.pl demo/GDWrap.png
 )
 }
 
-# $Id: Makefile.PL,v 1.9 2000/04/30 04:49:39 mgjv Exp $
+# $Id: Makefile.PL,v 1.10 2002/01/19 07:02:05 mgjv Exp $
