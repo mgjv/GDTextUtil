@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.30 2003/02/04 02:06:53 mgjv Exp $
+# $Id: Text.pm,v 1.31 2003/02/05 02:28:44 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::prog_version = '$Revision: 1.30 $' =~ /\s([\d.]+)/;
+$GD::Text::prog_version = '$Revision: 1.31 $' =~ /\s([\d.]+)/;
 $GD::Text::VERSION = '0.84';
 
 =head1 NAME
@@ -63,7 +63,9 @@ use Cwd;
 use vars qw($FONT_PATH @FONT_PATH $OS);
 BEGIN
 {
-    $FONT_PATH = $ENV{FONT_PATH} || $ENV{TTF_FONT_PATH} || '';
+    $FONT_PATH = $ENV{FONT_PATH}     || 
+                 $ENV{TTF_FONT_PATH} ||
+                 $ENV{TT_FONT_PATH}  || '';
     unless ($OS = $^O)
     {
         require Config;
@@ -611,7 +613,8 @@ relative to the current directory.
 Font files are only looked for in the current directory.
 
 FONT_PATH is initialised at module load time from the environment
-variables FONT_PATH or, if that's not present, TTF_FONT_PATH.
+variables FONT_PATH or, if that's not present, TTF_FONT_PATH, or
+TT_FONT_PATH.
 
 Returns the value the font path is set to.  If called without arguments
 C<font_path> returns the current font path.

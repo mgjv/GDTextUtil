@@ -1,14 +1,12 @@
-# $Id: text.t,v 1.14 2002/07/03 13:05:03 mgjv Exp $
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# $Id: text.t,v 1.15 2003/02/05 02:28:44 mgjv Exp $
 
 use lib ".", "..";
-require "t/lib.pl";
+BEGIN { require "t/lib.pl" }
 
 use Test::More tests => 19;
 
 use GD;
-BEGIN {use_ok "GD::Text"}
+BEGIN { use_ok "GD::Text" }
 
 # Test the default setup
 $t = GD::Text->new();
@@ -55,15 +53,23 @@ ok ($rc, "multiple fonts");
 
 SKIP:
 {
-    skip 5, "no ttf" unless ($t->can_do_ttf);
+    skip "No TTF support", 5 unless ($t->can_do_ttf);
 
     # Test loading of TTF
     $rc = $t->set_font('cetus.ttf', 18);
     ok ($rc && $t->is_ttf, "ttf set_font");
 
+    # Check multiple fonts in one go, number 2
+    $rc = $t->set_font(['cetus', gdGiantFont, 'bar'], 24);
+
+    like ($t->get('font'),   qr/cetus.ttf$/, "ttf multiple fonts");
+    is   ($t->get('ptsize'), 24,             "ttf multiple fonts");
+
+    skip "Some TTF tests disabled: Freetype inconsistent", 2;
+
     # Check some size parameters
     @p = $t->get(qw(width height char_up char_down space));
-    is ("@p", "173 30 24 6 7","ttf size param");
+    is ("@p", "173 30 24 6 7", "ttf size param");
 
     # Check that constructor with argument works
     $t = GD::Text->new(text => 'FooBar', font =>'cetus');
@@ -71,12 +77,6 @@ SKIP:
     #print "$i: @p\n";
     ok (defined $t && "@p" eq "45 16 13 3 4", "ttf constructor arg")
         or diag("p = @p");
-
-    # Check multiple fonts in one go, number 2
-    $rc = $t->set_font(['cetus', gdGiantFont, 'bar'], 24);
-
-    like ($t->get('font'), '/cetus.ttf$/', "ttf multiple fonts");
-    is   ($t->get('ptsize'), 24,           "ttf multiple fonts");
 }
 
 # Font Path tests

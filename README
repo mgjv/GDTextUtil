@@ -22,15 +22,22 @@ GD::Text::Wrap
 
 Requirements:
 
-	perl 5.005_03 or higher, preferably 5.6. It may work on older
-	versions, but it has not been tested, and I won't spend a lot of
-	time trying to support it.
+	perl 5.005_03 or higher. It may work on older versions, but it
+	has not been tested, and I won't spend a lot of time trying to
+	support it.
 
 	GD 1.20 or up, if possible built with TTF (freetype) support.
+	GD 2.* has not been tested yet.
 
 	Please note that the freetype version 2 libraries should be at
 	the latest level. Especially version 2.0.3 has an annoying bug
-	that rotates text twice.
+	that rotates text twice. Later versions of freetype (2.1.2
+	currently) don't render as nicely anymore as earlier ones.
+	Hopefully that will be fixed, because it is _ugly_ right now.
+
+	If you want 'make test' to do something useful, you will need
+	to have Test::More installed. If you don't, all tests will be
+	skipped.
 
 Installation:
 
@@ -51,6 +58,11 @@ demo/GDWrap.ref.png (reference image). If they look reasonably similar,
 you can call the tests successful. Even if they don't look entirely
 similar, it may simply be because your font files are different from the
 ones I used to create GDWrap.ref.png. Please see the sources.
+
+Currently, some of the TTF tests in t/* are disabled, specifically
+because every version of the freetype library seems to render
+differently enough for sizing to be wrong all the time. I don't think
+I'll ever re-enable them anymore.
 
 Todo:
 

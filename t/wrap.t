@@ -1,11 +1,9 @@
-# $Id: wrap.t,v 1.12 2003/02/04 06:06:36 mgjv Exp $
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# $Id: wrap.t,v 1.13 2003/02/05 02:28:44 mgjv Exp $
 
 use lib ".", "..";
-require "t/lib.pl";
+BEGIN { require "t/lib.pl" }
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 use GD;
 BEGIN { use_ok "GD::Text::Wrap" };
 
@@ -58,10 +56,12 @@ $wp->set(preserve_nl => 0);
 
 SKIP:
 {
-    skip 3, "no ttf" unless ($wp->can_do_ttf);
+    skip "No TTF Support", 3 unless ($wp->can_do_ttf);
 
     $rc = $wp->set_font('cetus.ttf', 10);
     ok ($rc, "ttf font set");
+
+    skip "Some TTF tests disabled: Freetype inconsistent", 2;
 
     # Get the bounding box
     @bb = $wp->get_bounds(20,10);
