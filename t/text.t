@@ -47,6 +47,7 @@ printf "ok %d\n", $i++;
 # Check that constructor with argument works
 $t = GD::Text->new(text => 'FooBar Banana', font => gdGiantFont);
 ($w) = $t->get(qw(width)) if defined $t;
+#print "$t, $w\n";
 print 'not ' unless (defined $t && defined $w && $w==117);
 printf "ok %d\n", $i++;
 

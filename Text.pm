@@ -1,4 +1,4 @@
-# $Id: Text.pm,v 1.11 1999/12/15 05:55:00 mgjv Exp $
+# $Id: Text.pm,v 1.12 1999/12/30 04:33:42 mgjv Exp $
 
 package GD::Text;
 
@@ -131,6 +131,8 @@ sub _set_TTF_font
 
 	$ERROR = "TrueType fonts require a point size", return 
 		unless (defined $size && $size > 0);
+	
+	return unless $self->can_do_ttf;
 
 	# Check that the font exists and is a real TTF font
 	my @bb = GD::Image->stringTTF(0, $font, $size, 0, 0, 0, "foo");
@@ -400,10 +402,8 @@ sub can_do_ttf
 {
 	my $proto = shift;
 
-	my $gd = GD::Image->new(10,10);
-
 	# Just see whether there is a stringTTF method at all
-	$gd->can('stringTTF') or return;
+	GD::Image->can('stringTTF') or return;
 
 	# Let's check whether TTF support has been compiled in.  We don't
 	# need to worry about providing a real font. The following will
