@@ -4,6 +4,7 @@ README
 Makefile.PL
 MANIFEST
 cetus.ttf
+demo/GDWrap.pl
 t/text.t
 t/align.t
 t/wrap.t

@@ -3,10 +3,11 @@ use strict;
 use GD;
 use GD::Text::Wrap;
 
-my $gd = GD::Image->new(450,170);
-            $gd->colorAllocate(255,255,255);
+my $gd = GD::Image->new(400,240);
+my $white = $gd->colorAllocate(255,255,255);
 my $black = $gd->colorAllocate(  0,  0,  0);
 my $blue  = $gd->colorAllocate(127,127,255);
+my $red   = $gd->colorAllocate(127,  0,  0);
 
 #print "No colours: $black ", $gd->colorsTotal, "\n";
 
@@ -18,26 +19,28 @@ EOSTR
 
 my $wp = GD::Text::Wrap->new($gd,
     top         => 10,
-    line_space  => 4,
+    line_space  => 5,
     color       => $black,
     text        => $text,
 );
-$wp->set_font('/usr/share/fonts/ttfonts/Arialn.ttf', 10);
+$wp->set(align => 'left', left => 10, right => 190);
+$gd->rectangle($wp->get_bounds, $blue);
+$wp->draw();
 
-#print "font: ", $wp->get('font'), "\n";
+$wp->set_font('cetus.ttf', 10);
+$wp->set(align => 'justified', line_space => 2, left => 210, right => 390);
+$gd->rectangle($wp->get_bounds, $blue);
+$wp->draw();
 
-$wp->set(align => 'left', left => 10, right => 140);
+$wp->set(top => 120);
+
+$wp->set(align => 'right', left => 10, right => 190);
 $gd->rectangle($wp->get_bounds, $blue);
 $wp->draw();
-$wp->set(align => 'justified', left => 160, right => 290);
-$gd->rectangle($wp->get_bounds, $blue);
-$wp->draw();
-$wp->set(align => 'right', left => 310, right => 440);
-$gd->rectangle($wp->get_bounds, $blue);
-$wp->draw();
-$wp->set(align => 'center', left => 40, right => 410, top => 110);
-$wp->set_font('/usr/share/fonts/ttfonts/Arialnb.ttf', 12);
-$gd->rectangle($wp->get_bounds, $blue);
+
+$wp->set(colour => $white, align => 'center', left => 210, right => 390);
+$wp->set_font(gdMediumBoldFont, 12);
+$gd->filledRectangle($wp->get_bounds, $red);
 $wp->draw();
 
 open(GD, '>GDWrap.png') or die $!;

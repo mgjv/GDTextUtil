@@ -2,12 +2,17 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
-require 5.004;
+# The main reason for this is that I haven't tested it on anything less,
+# and that I am pretty sure there are one or two 5.005 specific
+# constructs around. Besides that, people should upgrade.
+require 5.005;
 use strict;
+
+# XXX Test for GD and test for the version.
 
 WriteMakefile(
     'NAME'			=> 'GDTextUtil',
-    'VERSION_FROM' 	=> 'lib/GD/Text.pm', # finds $VERSION
+    'VERSION' 		=> '0.50',
 	'PREREQ_PM'		=> { 'GD' => 0 },
 	($] >= 5.005 and (
 		 'ABSTRACT'     => 'text utilities for GD',
@@ -15,4 +20,4 @@ WriteMakefile(
 	),
 );
 
-# $Id: Makefile.PL,v 1.1 1999/12/05 13:20:22 mgjv Exp $
+# $Id: Makefile.PL,v 1.2 1999/12/09 22:07:02 mgjv Exp $
