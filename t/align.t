@@ -1,4 +1,4 @@
-# $Id: align.t,v 1.18 2003/02/21 00:10:28 mgjv Exp $
+# $Id: align.t,v 1.19 2003/02/21 03:07:10 mgjv Exp $
 
 use lib ".", "..";
 BEGIN{ require "t/lib.pl" }
@@ -51,6 +51,10 @@ ok ($x==28 && $y==25, "builtin font");
 
 # Test some angles, this method is not meant to be used by anyone but
 # me :)
+# This first test used to check for PI/4 exactly, but some installations
+# of Perl on some platforms, with some flags would round that just
+# slightly differently from what I expect and want.
+
 $t->draw(100,40,PI/4 - 0.0001);
 ok (!$t->_builtin_up, "angles test");
 
