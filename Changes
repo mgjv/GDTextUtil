@@ -1,5 +1,9 @@
 Revision history for Perl extension GDTextUtil.
 
+Sun Oct 22 2000
+
+- Fixed draw(0,0) problem in GD::Text::Wrap
+
 Mon Sep 18 2000
 
 - Added paragraph and newline preservation

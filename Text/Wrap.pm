@@ -1,8 +1,8 @@
-# $Id: Wrap.pm,v 1.16 2000/09/18 08:39:47 mgjv Exp $
+# $Id: Wrap.pm,v 1.17 2002/01/19 05:14:06 mgjv Exp $
 
 package GD::Text::Wrap;
 
-$GD::Text::Wrap::VERSION = '$Revision: 1.16 $' =~ /\s([\d.]+)/;
+$GD::Text::Wrap::VERSION = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -283,8 +283,10 @@ implementation that allows angled boxes.
 sub draw
 {
     my $self 		= shift;
-	$self->{left} 	= shift or return;
-	$self->{top} 	= shift or return;
+	$self->{left} 	= shift;
+	defined($self->{left}) or return;
+	$self->{top} 	= shift;
+	defined($self->{top}) or return;
 	$self->{angle} 	= shift || 0; #unused
 
 	return unless $self->{text};

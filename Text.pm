@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.23 2000/09/18 08:39:47 mgjv Exp $
+# $Id: Text.pm,v 1.24 2002/01/19 05:14:06 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::prog_version = '$Revision: 1.23 $' =~ /\s([\d.]+)/;
+$GD::Text::prog_version = '$Revision: 1.24 $' =~ /\s([\d.]+)/;
 $GD::Text::VERSION = '0.80';
 
 =head1 NAME
@@ -263,7 +263,7 @@ sub _set_TTF_font
 
 	# Check that the font exists and is a real TTF font
 	my @bb = GD::Image->stringTTF(0, $font_file, $size, 0, 0, 0, "foo");
-	$ERROR = $@, return unless @bb;
+	$ERROR = "$@", return unless @bb;
 
 	$self->{type}   = 'ttf';
 	$self->{font}   = $font_file;

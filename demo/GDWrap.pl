@@ -11,15 +11,11 @@ my $red   = $gd->colorAllocate(127,  0,  0);
 
 #print "No colours: $black ", $gd->colorsTotal, "\n";
 
-my $text = <<EOSTR;
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit, 
+my $text = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, 
 sed diam 
 
 nonummy nibh euismod 
-tincidunt ut laoreet dolore magna aliquam erat volutpat.
-EOSTR
-
-$text =~ s/\n$//;
+tincidunt ut laoreet dolore magna aliquam erat volutpat.';
 
 my $wp = GD::Text::Wrap->new($gd,
     width       => 180,
