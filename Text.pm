@@ -1,4 +1,4 @@
-# $Id: Text.pm,v 1.15 2000/01/09 12:04:49 mgjv Exp $
+# $Id: Text.pm,v 1.16 2000/01/09 12:15:10 mgjv Exp $
 
 package GD::Text;
 
@@ -345,7 +345,7 @@ that is set.
 sub get
 {
 	my $self = shift;
-	my @wanted = map { $self->{$_} } @_;
+	my @wanted = map $self->{$_}, @_;
 	wantarray ? @wanted : $wanted[0];
 }
 
