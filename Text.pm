@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.28 2003/02/03 06:06:23 mgjv Exp $
+# $Id: Text.pm,v 1.29 2003/02/04 01:55:50 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::prog_version = '$Revision: 1.28 $' =~ /\s([\d.]+)/;
+$GD::Text::prog_version = '$Revision: 1.29 $' =~ /\s([\d.]+)/;
 $GD::Text::VERSION = '0.84';
 
 =head1 NAME
@@ -461,26 +461,36 @@ BEGIN
 {
     # Build a string of all characters that are printable, and that are
     # not whitespace.
-    eval {
-        use POSIX qw/isspace isprint isgraph/; 
-        # isgraph() is broken on perl 5.8.0 on Redhat 8.0 (and
-        # possibly on other platforms)
-        #$test_string = join '', grep isgraph($_), map chr($_), (0x00..0xFF);
-        $test_string = join '', 
-            /^[[:graph:]]/, 
-            map chr($_), (0x00..0xFF);
-    };
 
-    if ($@)
+    my @test_chars = map chr, 0x01 .. 0xff;
+
+    my $isprintable_sub;
+    if ($] >= 5.008)
     {
-        # Most likely POSIX is not available on this system.
-        # Let's try to emulate isgraph(). This may be wrong at times.
-        $test_string = join '', map chr($_), (0x21..0x7e, 0xa1..0xff);
+        # We have to do this at run time, otherwise 5.005_03 will
+        # whinge about [[::]] syntax being reserved, and this cannot
+        # be shut up with $^W
+        #$^W = 0;
+        eval '$isprintable_sub = sub { $_[0] =~ /^[[:graph:]]$/ }'
+    }
+    else
+    {
+        eval { require POSIX };
+        if ($@)
+        {
+            @test_chars = map chr, 0x21..0x7e, 0xa1..0xff;
+            $isprintable_sub = sub { 1 }
+        }
+        else
+        {
+            $isprintable_sub = sub { POSIX::isgraph($_[0]) }
+        }
     }
 
-    $space_string = $test_string;
+    $test_string = join '', grep $isprintable_sub->($_), @test_chars;
 
     # Put a space every 5 characters, and count how many there are
+    $space_string = $test_string;
     $n_spaces = $space_string =~ s/(.{5})(.{5})/$1 $2/g;
 }
 
