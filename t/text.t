@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..8\n"; }
+BEGIN { $| = 1; print "1..11\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use GD;
 use GD::Text;
@@ -44,17 +44,24 @@ printf "ok %d\n", $i++;
 print 'not ' unless ($w==135 && $h==15 && $cu==15 && $cd==0);
 printf "ok %d\n", $i++;
 
-# Test loading of TTF
-$rc = $t->set_font('cetus.ttf', 18);
-print 'not ' unless (defined $rc && $t->is_ttf);
-printf "ok %d\n", $i++;
+if ($t->can_do_ttf)
+{
+	# Test loading of TTF
+	$rc = $t->set_font('cetus.ttf', 18);
+	print 'not ' unless (defined $rc && $t->is_ttf);
+	printf "ok %d\n", $i++;
 
-# Check some size parameters
-($w, $h, $cu, $cd, $sp) = 
-	$t->get(qw(width height char_up char_down space));
-print 'not ' unless 
-	(defined $w && $w==174 && $h==23 && $cu==18 && $cd==5 && $sp == 7);
-printf "ok %d\n", $i++;
+	# Check some size parameters
+	($w, $h, $cu, $cd, $sp) = 
+		$t->get(qw(width height char_up char_down space));
+	print 'not ' unless 
+		(defined $w && $w==174 && $h==23 && $cu==18 && $cd==5 && $sp == 7);
+	printf "ok %d\n", $i++;
+}
+else
+{
+	printf "ok %d # Skip\n", $i++ for (1 .. 2);
+}
 
 # Check that constructor with argument works
 $t = GD::Text->new('FooBar');

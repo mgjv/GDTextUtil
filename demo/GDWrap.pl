@@ -22,7 +22,7 @@ my $wp = GD::Text::Wrap->new($gd,
     color       => $black,
     text        => $text,
 );
-#$wp->set_font('/usr/share/fonts/ttfonts/Arialn.ttf', 10);
+$wp->set_font('/usr/share/fonts/ttfonts/Arialn.ttf', 10);
 
 #print "font: ", $wp->get('font'), "\n";
 

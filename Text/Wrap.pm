@@ -39,16 +39,6 @@ GD::Text::Wrap provides an object that draws a formatted paragraph of
 text in a box on a GD::Image canvas, using either a builtin GD font
 or a TrueType font.
 
-=head1 NOTES
-
-As with all Modules for Perl: Please stick to using the interface. If
-you try to fiddle too much with knowledge of the internals of this
-module, you may get burned. I may change them at any time.
-
-You can only use TrueType fonts with version of GD > 1.20, and then
-only if compiled with support for this. If you attempt to do it
-anyway, you will get errors.
-
 =head1 METHODS
 
 =cut
@@ -97,6 +87,9 @@ sub _init
 
 	$self->{render} = GD::Text::Align->new($self->{gd}, text => 'Foo');
 	croak "Cannot allocate GD::Text::Align object" unless $self->{render};
+
+	$self->set($_, $attribs{$_}) foreach (keys %attribs);
+	# XXX SET DEFAULTS
 
     $self->set(
 		colour => $self->{gd}->colorsTotal - 1,
@@ -214,6 +207,19 @@ sub set_font
 	$self->{render}->set_font(@_);
 }
 
+=head2 $wrap_box->can_do_ttf()
+
+Return true if this object can handle TTF fonts. See also the
+C<can_do_ttf()> method in L<GD::Text>.
+
+=cut
+
+sub can_do_ttf
+{
+	my $self = shift;
+	$self->{render}->can_do_ttf();
+}
+
 =head2 $wrapbox->get_bounds()
 
 Returns the bounding box of the box that will be drawn with the current
@@ -253,7 +259,7 @@ sub draw
 	foreach my $word (split(' ', $self->{text}))
 	{
         my $len = $self->{render}->width(join(' ', @line, $word));
-		if ($len > $self->{right} - $self->{left})
+		if ($len > $self->{right} - $self->{left} && @line)
 		{
 			$self->_draw_line(0, $y, @line) 
 				unless $dry_run && $dry_run == -1;
@@ -328,7 +334,7 @@ sub _draw_justified_line
 	}
 
 	# Calculate the average space between words
-	my $space = ($self->{right} - $self->{left} - $length)/$#_;
+	my $space = ($self->{right} - $self->{left} - $length)/($#_ || 1);
 
 	# Draw all the words, except the last one
 	for (my $i = 0; $i < $#_; $i++)
@@ -339,12 +345,28 @@ sub _draw_justified_line
 	}
 
 	# Draw the last word
+	# XXX This will make a single word that's too long stick out the
+	# right side of the box. is that what we want?
 	$self->{render}->set_halign('right');
 	$self->{render}->set_text($_[-1]);
 	$self->{render}->draw($self->{right}, $y);
 }
 
 $GD::Text::Wrap::VERSION;
+
+=head1 NOTES
+
+As with all Modules for Perl: Please stick to using the interface. If
+you try to fiddle too much with knowledge of the internals of this
+module, you may get burned. I may change them at any time.
+
+You can only use TrueType fonts with version of GD > 1.20, and then
+only if compiled with support for this. If you attempt to do it
+anyway, you will get errors.
+
+Even though this module lives in the GD::Text namespace, it is not a
+GD::Text. It does however delegate a lot of its functionality to a
+contained object that is one (GD::Text::Align).
 
 =head1 BUGS
 
@@ -369,6 +391,9 @@ More and better error handling.
 
 Better handling of GD version before and after 1.20. This may be by
 delegation to GD::Text.
+
+Warnings for lines that are too long and stick out of the box.
+Warning for emptyish lines?
 
 =head1 COPYRIGHT
 

@@ -272,6 +272,12 @@ sub is_ttf
 
 =head2 $gd_text->can_do_ttf() or GD::Text->can_do_ttf()
 
+Return true if this object can handle TTF fonts. See also the
+C<can_do_ttf()> method in L<GD::Text>.
+
+This depends on whether your version of GD is younger than 1.19 and
+has TTF support compiled into it.
+
 =cut
 
 sub can_do_ttf
@@ -279,6 +285,7 @@ sub can_do_ttf
 	my $proto = shift;
 
 	my $gd = GD::Image->new(10,10);
+	# XXX is this test robust enough?
 	$gd->can('stringTTF');
 }
 
