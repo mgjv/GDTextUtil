@@ -1,4 +1,4 @@
-# $Id: text.t,v 1.15 2003/02/05 02:28:44 mgjv Exp $
+# $Id: text.t,v 1.16 2003/02/20 12:23:32 mgjv Exp $
 
 use lib ".", "..";
 BEGIN { require "t/lib.pl" }
@@ -56,26 +56,26 @@ SKIP:
     skip "No TTF support", 5 unless ($t->can_do_ttf);
 
     # Test loading of TTF
-    $rc = $t->set_font('cetus.ttf', 18);
+    $rc = $t->set_font('Dustismo_Sans.ttf', 18);
     ok ($rc && $t->is_ttf, "ttf set_font");
 
     # Check multiple fonts in one go, number 2
-    $rc = $t->set_font(['cetus', gdGiantFont, 'bar'], 24);
+    $rc = $t->set_font(['Dustismo_Sans', gdGiantFont, 'bar'], 24);
 
-    like ($t->get('font'),   qr/cetus.ttf$/, "ttf multiple fonts");
-    is   ($t->get('ptsize'), 24,             "ttf multiple fonts");
+    like ($t->get('font'),   qr/Dustismo_Sans.ttf$/, "ttf multiple fonts");
+    is   ($t->get('ptsize'), 24,                     "ttf multiple fonts");
 
     skip "Some TTF tests disabled: Freetype inconsistent", 2;
 
     # Check some size parameters
     @p = $t->get(qw(width height char_up char_down space));
-    is ("@p", "173 30 24 6 7", "ttf size param");
+    is ("@p", "210 34 28 6 11", "ttf size param");
 
     # Check that constructor with argument works
-    $t = GD::Text->new(text => 'FooBar', font =>'cetus');
+    $t = GD::Text->new(text => 'FooBar', font =>'Dustismo_Sans');
     @p = $t->get(qw(width height char_up char_down space)) if defined $t;
     #print "$i: @p\n";
-    ok (defined $t && "@p" eq "45 16 13 3 4", "ttf constructor arg")
+    ok (defined $t && "@p" eq "38 13 11 2 5", "ttf constructor arg")
         or diag("p = @p");
 }
 
@@ -96,18 +96,18 @@ SKIP :
 
         # Font Path
         $t->font_path('demo/..:/tmp');
-        $rc = GD::Text::_find_TTF('cetus', 18);
-        is($rc,'./cetus.ttf', "font path no ttf");
+        $rc = GD::Text::_find_TTF('Dustismo_Sans', 18);
+        is($rc,'./Dustismo_Sans.ttf', "font path no ttf");
 
         $t->font_path('demo/..:.:/tmp');
-        $rc = GD::Text::_find_TTF('cetus', 18);
-        is($rc,'demo/../cetus.ttf', "font path multi");
+        $rc = GD::Text::_find_TTF('Dustismo_Sans', 18);
+        is($rc,'demo/../Dustismo_Sans.ttf', "font path multi");
 
         $rc = GD::Text::_find_TTF('/usr/foo/font.ttf', 18);
         is($rc,'/usr/foo/font.ttf', "font path abs");
 
         $t->font_path(undef);
-        $rc = GD::Text::_find_TTF('cetus.ttf', 18);
-        is($rc,'./cetus.ttf', "named");
+        $rc = GD::Text::_find_TTF('Dustismo_Sans.ttf', 18);
+        is($rc,'./Dustismo_Sans.ttf', "named");
 }
 

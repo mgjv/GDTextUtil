@@ -1,8 +1,8 @@
-# $Id: Align.pm,v 1.15 2003/02/20 11:14:53 mgjv Exp $
+# $Id: Align.pm,v 1.16 2003/02/20 12:23:32 mgjv Exp $
 
 package GD::Text::Align;
 
-$GD::Text::Align::VERSION = '$Revision: 1.15 $' =~ /\s([\d.]+)/;
+$GD::Text::Align::VERSION = '$Revision: 1.16 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -20,7 +20,7 @@ GD::Text::Align - Draw aligned strings
     valign => 'top',
     halign => 'right',
   );
-  $align->set_font('cetus.ttf', 12);
+  $align->set_font('arial', 12);
   $align->set_text('some string');
   @bb = $align->bounding_box(200, 400, PI/3);
   # you can do things based on the bounding box here

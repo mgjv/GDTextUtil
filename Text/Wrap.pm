@@ -1,8 +1,8 @@
-# $Id: Wrap.pm,v 1.18 2003/02/03 06:06:23 mgjv Exp $
+# $Id: Wrap.pm,v 1.19 2003/02/20 12:23:32 mgjv Exp $
 
 package GD::Text::Wrap;
 
-$GD::Text::Wrap::VERSION = '$Revision: 1.18 $' =~ /\s([\d.]+)/;
+$GD::Text::Wrap::VERSION = '$Revision: 1.19 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -28,7 +28,7 @@ GD::Text::Wrap - Wrap strings in boxes
       text        => $text,
   );
   $wrapbox->set_font(gdMediumBoldFont);
-  $wrapbox->set_font('cetus.ttf', 12);
+  $wrapbox->set_font('arial', 12);
   $wrapbox->set(align => 'left', width => 120);
   $wrapbox->draw(10,140);
 

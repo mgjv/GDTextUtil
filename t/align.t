@@ -1,4 +1,4 @@
-# $Id: align.t,v 1.16 2003/02/05 02:28:44 mgjv Exp $
+# $Id: align.t,v 1.17 2003/02/20 12:23:32 mgjv Exp $
 
 use lib ".", "..";
 BEGIN{ require "t/lib.pl" }
@@ -100,15 +100,15 @@ SKIP:
         ptsize => 18,
     );
 
-    ok ($t->set_font('cetus.ttf'), "ttf font cetus");
+    ok ($t->set_font('Dustismo_Sans'), "ttf font Dustismo Sans");
 
     skip "Some TTF tests disabled: Freetype inconsistent", 5;
 
     @bb = $t->draw(10,40);
-    ok (aeq(\@bb, [qw"12 64 154 64 154 46 12 46"], 1), "drawing")
+    ok (aeq(\@bb, [qw"11 61 137 61 137 45 11 45"], 1), "drawing")
 	or diag("bb = @bb");
 
-    ok ($t->set_font('cetus', 12), "ttf cetus 12pt");
+    ok ($t->set_font('Dustismo_Roman', 12), "ttf Dustismo Roman 12pt");
 
     $t->set_align('bottom', 'left');
     @bb = $t->bounding_box(100,100);
@@ -117,11 +117,11 @@ SKIP:
 
     $t->set_align('top', 'center');
     @bb = $t->bounding_box(100,100, 4*PI/3);
-    ok (aeq(\@bb, [qw"109 51 62 132 73 138 119 57"], 1), "top center align")
+    ok (aeq(\@bb, [qw"110 52 64 132 74 138 120 58"], 1), "top center align")
 	or diag("bb = @bb");
 
     @bb = $t->draw(140,100,4*PI/3);
-    ok (aeq(\@bb, [qw"149 51 102 132 113 138 159 57"], 1), "last drawing")
+    ok (aeq(\@bb, [qw"150 52 104 132 114 138 160 58"], 1), "last drawing")
 	or diag("bb = @bb");
 }
 

@@ -100,6 +100,12 @@ mgjv@comdyn.com.au
 This package is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
-Enclosed font: 
-    Cetus by Greg Meronek, downloaded from http://www.fontpool.com/
+Enclosed fonts: 
+    Dustismo Sans and Dustismo Roman
+    http://www.cheapskatefonts.com/
+    see Dustismo,LICENSE for original (GPL) license
+
+    Cetus by Greg Meronek is no longer enclosed, since its copyright
+    status has become unclear (the status is simply not known).
+    http://fontastic.i-n.net/fontastic/greg.htm
 

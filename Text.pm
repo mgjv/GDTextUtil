@@ -1,9 +1,9 @@
-# $Id: Text.pm,v 1.31 2003/02/05 02:28:44 mgjv Exp $
+# $Id: Text.pm,v 1.32 2003/02/20 12:23:31 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::prog_version = '$Revision: 1.31 $' =~ /\s([\d.]+)/;
-$GD::Text::VERSION = '0.84';
+$GD::Text::prog_version = '$Revision: 1.32 $' =~ /\s([\d.]+)/;
+$GD::Text::VERSION = '0.85';
 
 =head1 NAME
 
@@ -117,9 +117,9 @@ L<"font_path">.
 If you are not using an absolute path to the font file, you can leave of
 the .ttf file extension, but you have to append it for absolute paths:
 
-  $gd_text->set_font('cetus', 12);
+  $gd_text->set_font('arial', 12);
   # but
-  $gd_text->set_font('/usr/fonts/cetus.ttf', 12);
+  $gd_text->set_font('/usr/fonts/arial.ttf', 12);
 
 The first argument can be a reference to an array of fonts. The first
 font from the array that can be found will be used. This allows you to
@@ -236,15 +236,19 @@ sub _find_TTF
     }
 
     # Let's search for it
+    # TODO Maybe truncate base name at 8 characters for dos-like
+    # installations?
     for my $path (split /$dsep/, $FONT_PATH)
     {
         # XXX Can I use File::Basename for this?
         my $file = "$path$psep$font";
         #print "Trying $file\n";
         -f $file and return $file;
-        # See if we can find one with a .ttf at the end
-        $file = "$path$psep$font.ttf";
-        -f $file and return $file;
+        # See if we can find one with an extension at the end
+	for my $ext (qw/ ttf TTF /)
+	{
+	    -f "$file.$ext" and return "$file.$ext";
+	}
     }
 
     return;

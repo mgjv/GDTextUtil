@@ -1,4 +1,4 @@
-# $Id: wrap.t,v 1.13 2003/02/05 02:28:44 mgjv Exp $
+# $Id: wrap.t,v 1.14 2003/02/20 12:23:32 mgjv Exp $
 
 use lib ".", "..";
 BEGIN { require "t/lib.pl" }
@@ -58,14 +58,14 @@ SKIP:
 {
     skip "No TTF Support", 3 unless ($wp->can_do_ttf);
 
-    $rc = $wp->set_font('cetus.ttf', 10);
+    $rc = $wp->set_font('Dustismo_Sans', 10);
     ok ($rc, "ttf font set");
 
     skip "Some TTF tests disabled: Freetype inconsistent", 2;
 
     # Get the bounding box
     @bb = $wp->get_bounds(20,10);
-    ok (aeq(\@bb, [qw'20 10 150 170'], 1), "ttf bounding box")
+    ok (aeq(\@bb, [qw'20 10 150 113'], 1), "ttf bounding box")
 	or diag("bb = @bb");
 
     @bb2 = $wp->draw(20,10);

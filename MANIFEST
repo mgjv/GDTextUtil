@@ -2,7 +2,9 @@ Changes
 README
 Makefile.PL
 MANIFEST
-cetus.ttf
+Dustismo_Sans.ttf
+Dustismo_Roman.ttf
+Dustismo.LICENSE
 demo/GDWrap.pl
 demo/GDWrap.ref.png
 t/lib.pl

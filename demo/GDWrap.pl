@@ -32,14 +32,14 @@ $wp->draw(10,10);
 
 $gd->rectangle($wp->get_bounds(210,10), $blue);
 $wp->set(para_space => 5, preserve_nl => 1);
-$wp->set_font('cetus', 10);
+$wp->set_font('Dustismo_Sans', 10);
 $wp->set(align => 'justified', line_space => 0);
 $wp->draw(210,10);
 
 $wp->set(para_space => 10, preserve_nl => 0);
 # Assume the user has set FONT_PATH or TTF_FONT_PATH
 #$wp->font_path('/usr/share/fonts/ttfonts');
-$wp->set_font(['arial', 'cetus'], 10);
+$wp->set_font(['arial', 'Dustismo_Sans'], 10);
 $wp->set(align => 'right');
 $gd->rectangle($wp->get_bounds(10,120), $blue);
 $wp->draw(10,120);
