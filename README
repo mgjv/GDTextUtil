@@ -2,25 +2,25 @@ This are Text utilities for use with the GD drawing package. This
 package provides three modules:
 
 GD::Text:
-	Provides information about a font, irrespective of whether the font
-	is a TTF or builtin font.
+    Provides information about a font, irrespective of whether the font
+    is a TTF or builtin font.
 
 GD::Text::Align
-	Align a string around a coordinate, left, right, center, top, bottom
-	or center.
+    Align a string around a coordinate, left, right, center, top, bottom
+    or center.
 
 GD::Text::Wrap
-	Wrap a long string between a right and left margin, starting at a
-	certain y coordinate. Layout the text flush left, flush right,
-	center, or justified.
+    Wrap a long string between a right and left margin, starting at a
+    certain y coordinate. Layout the text flush left, flush right,
+    center, or justified.
 
 Installation:
 
-	perl Makefile.PL
-	make
-	make test
-	make demo
-	make install
+    perl Makefile.PL
+    make
+    make test
+    make demo
+    make install
 
 Demo(s) can be found in the demo directory.
 
@@ -29,10 +29,10 @@ Todo:
 - Make the interface more flexible
 - Alignment for the wrap boxes as a whole
 - More demo code
-	
+    
 Copyright (c) 1999 Martien Verbruggen
 mgjv@comdyn.com.au
 
 Enclosed font: 
-	Cetus by Greg Meronek, downloaded from http://www.fontpool.com/
+    Cetus by Greg Meronek, downloaded from http://www.fontpool.com/
 
