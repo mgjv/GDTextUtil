@@ -14,6 +14,14 @@ GD::Text::Wrap
     certain y coordinate. Layout the text flush left, flush right,
     center, or justified.
 
+Requirements:
+
+	perl 5.005_03 or higher, preferably 5.6. It may work on older
+	versions, but it has not been tested, and I won't spend a lot of
+	time trying to support it.
+
+	GD 1.20 or up, built for TTF (freetype) support.
+
 Installation:
 
     perl Makefile.PL
