@@ -1,9 +1,7 @@
-# $Id: align.t,v 1.14 2002/07/03 13:05:03 mgjv Exp $
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# $Id: align.t,v 1.15 2003/02/04 06:06:36 mgjv Exp $
 
 use lib ".", "..";
-require "t/lib.pl";
+BEGIN{ require "t/lib.pl" }
 
 use Test::More tests => 21;
 

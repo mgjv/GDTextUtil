@@ -1,5 +1,15 @@
 # allow a 2 pixel difference between the values in array ref 1 and array
 # ref 2
+
+eval { local $SIG{'__WARN__'}; require Test::More };
+if ($@)
+{
+    # Test::More is not available
+    print "1..1\n";
+    print "ok 1 # skip Skipping all tests: No test::More\n";
+    exit 0;
+}
+
 sub main::aeq
 {
     my ($a1, $a2, $e) = @_;

@@ -1,4 +1,4 @@
-# $Id: wrap.t,v 1.11 2002/07/03 13:05:03 mgjv Exp $
+# $Id: wrap.t,v 1.12 2003/02/04 06:06:36 mgjv Exp $
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
@@ -72,6 +72,8 @@ SKIP:
     ok (aeq(\@bb, \@bb2, 0), "ttf drawing")
 	or diag("bb2 = @bb2");
 }
+
+ok (1, "end");
 
 __END__
 #Only here to test the test.
