@@ -1,4 +1,4 @@
-# $Id: align.t,v 1.17 2003/02/20 12:23:32 mgjv Exp $
+# $Id: align.t,v 1.18 2003/02/21 00:10:28 mgjv Exp $
 
 use lib ".", "..";
 BEGIN{ require "t/lib.pl" }
@@ -19,7 +19,7 @@ is ($gd->colorsTotal, 2, "Colors allocation");
 
 # Test the default setup
 $t = GD::Text::Align->new($gd);
-ok (defined $gd, "GD::Text::Align returns object")
+ok (defined $t, "GD::Text::Align returns object")
     or diag($@);
 
 $t->set_text('A string');
@@ -51,10 +51,10 @@ ok ($x==28 && $y==25, "builtin font");
 
 # Test some angles, this method is not meant to be used by anyone but
 # me :)
-$t->draw(100,40,PI/4);
+$t->draw(100,40,PI/4 - 0.0001);
 ok (!$t->_builtin_up, "angles test");
 
-$t->draw(100,40,PI/4 + 0.000001);
+$t->draw(100,40,PI/4 + 0.0001);
 ok ($t->_builtin_up, "angles test 2");
 
 # And some bounding boxes
@@ -100,28 +100,30 @@ SKIP:
         ptsize => 18,
     );
 
-    ok ($t->set_font('Dustismo_Sans'), "ttf font Dustismo Sans");
+    ok ($t->set_font('Dustismo_Sans'), "ttf font Dustismo Sans")
+	or diag($t->error);
 
     skip "Some TTF tests disabled: Freetype inconsistent", 5;
 
     @bb = $t->draw(10,40);
-    ok (aeq(\@bb, [qw"11 61 137 61 137 45 11 45"], 1), "drawing")
+    ok (aeq(\@bb, [qw"11 57 137 57 137 41 11 41"], 1), "drawing")
 	or diag("bb = @bb");
 
-    ok ($t->set_font('Dustismo_Roman', 12), "ttf Dustismo Roman 12pt");
+    ok ($t->set_font('Dustismo_Sans', 12), "ttf Dustismo Sans 12pt")
+	or diag($t->error);
 
     $t->set_align('bottom', 'left');
     @bb = $t->bounding_box(100,100);
-    ok (aeq(\@bb, [qw"101 96 194 96 194 84 101 84"], 1), "bottom left align")
+    ok (aeq(\@bb, [qw"101 97 190 97 190 86 101 86"], 1), "bottom left align")
 	or diag("bb = @bb");
 
     $t->set_align('top', 'center');
     @bb = $t->bounding_box(100,100, 4*PI/3);
-    ok (aeq(\@bb, [qw"110 52 64 132 74 138 120 58"], 1), "top center align")
+    ok (aeq(\@bb, [qw"111 55 67 132 77 137 120 60"], 1), "top center align")
 	or diag("bb = @bb");
 
     @bb = $t->draw(140,100,4*PI/3);
-    ok (aeq(\@bb, [qw"150 52 104 132 114 138 160 58"], 1), "last drawing")
+    ok (aeq(\@bb, [qw"151 55 107 132 117 137 160 60"], 1), "last drawing")
 	or diag("bb = @bb");
 }
 
@@ -134,4 +136,4 @@ $gd->line(0,100,200,100,2);
 open(GD, ">/tmp/align.png") or die $!;
 binmode GD;
 print GD $gd->png;
-close(GD);
+close(GD)

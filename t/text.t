@@ -1,9 +1,9 @@
-# $Id: text.t,v 1.16 2003/02/20 12:23:32 mgjv Exp $
+# $Id: text.t,v 1.17 2003/02/21 00:10:28 mgjv Exp $
 
 use lib ".", "..";
 BEGIN { require "t/lib.pl" }
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 use GD;
 BEGIN { use_ok "GD::Text" }
@@ -53,29 +53,36 @@ ok ($rc, "multiple fonts");
 
 SKIP:
 {
-    skip "No TTF support", 5 unless ($t->can_do_ttf);
+    skip "No TTF support", 6 unless ($t->can_do_ttf);
+
+    unless (ok (-d "t", "correct directory"))
+    {
+	diag("Running in incorrect directory: No 't' subdirectory.");
+	skip "Test script ran from incorrect directory", 5;
+    }
 
     # Test loading of TTF
     $rc = $t->set_font('Dustismo_Sans.ttf', 18);
-    ok ($rc && $t->is_ttf, "ttf set_font");
+    ok ($rc && $t->is_ttf, "ttf set_font")
+	or diag("Your GD module incorrectly claims valid TTF support");
 
     # Check multiple fonts in one go, number 2
     $rc = $t->set_font(['Dustismo_Sans', gdGiantFont, 'bar'], 24);
 
-    like ($t->get('font'),   qr/Dustismo_Sans.ttf$/, "ttf multiple fonts");
+    like ($t->get('font'),   qr/Dustismo_Sans.ttf$/, "ttf multiple fonts")
+	or diag("Font is '".$t->get('font')."'");
     is   ($t->get('ptsize'), 24,                     "ttf multiple fonts");
 
     skip "Some TTF tests disabled: Freetype inconsistent", 2;
 
     # Check some size parameters
     @p = $t->get(qw(width height char_up char_down space));
-    is ("@p", "210 34 28 6 11", "ttf size param");
+    is ("@p", "210 29 23 6 11", "ttf size param");
 
     # Check that constructor with argument works
     $t = GD::Text->new(text => 'FooBar', font =>'Dustismo_Sans');
     @p = $t->get(qw(width height char_up char_down space)) if defined $t;
-    #print "$i: @p\n";
-    ok (defined $t && "@p" eq "38 13 11 2 5", "ttf constructor arg")
+    ok (defined $t && "@p" eq "38 12 10 2 5", "ttf constructor arg")
         or diag("p = @p");
 }
 
@@ -86,28 +93,28 @@ SKIP:
 # path.
 SKIP :
 {
-        skip "no tff/nonunix", 4 unless ($t->can_do_ttf && 
-                                         $^O &&
-                                         $^O !~ /^MS(DOS|Win)/i && 
-                                         $^O !~ /VMS/i && 
-                                         $^O !~ /^MacOS/i && 
-                                         $^O !~ /os2/i && 
-                                         $^O !~ /^AmigaOS/i);
+    skip "no tff/nonunix", 4 unless ($t->can_do_ttf && 
+				     $^O &&
+				     $^O !~ /^MS(DOS|Win)/i && 
+				     $^O !~ /VMS/i && 
+				     $^O !~ /^MacOS/i && 
+				     $^O !~ /os2/i && 
+				     $^O !~ /^AmigaOS/i);
 
-        # Font Path
-        $t->font_path('demo/..:/tmp');
-        $rc = GD::Text::_find_TTF('Dustismo_Sans', 18);
-        is($rc,'./Dustismo_Sans.ttf', "font path no ttf");
+    # Font Path
+    $t->font_path('demo/..:/tmp');
+    $rc = GD::Text::_find_TTF('Dustismo_Sans', 18);
+    is($rc,'./Dustismo_Sans.ttf', "font path no ttf");
 
-        $t->font_path('demo/..:.:/tmp');
-        $rc = GD::Text::_find_TTF('Dustismo_Sans', 18);
-        is($rc,'demo/../Dustismo_Sans.ttf', "font path multi");
+    $t->font_path('demo/..:.:/tmp');
+    $rc = GD::Text::_find_TTF('Dustismo_Sans', 18);
+    is($rc,'demo/../Dustismo_Sans.ttf', "font path multi");
 
-        $rc = GD::Text::_find_TTF('/usr/foo/font.ttf', 18);
-        is($rc,'/usr/foo/font.ttf', "font path abs");
+    $rc = GD::Text::_find_TTF('/usr/foo/font.ttf', 18);
+    is($rc,'/usr/foo/font.ttf', "font path abs");
 
-        $t->font_path(undef);
-        $rc = GD::Text::_find_TTF('Dustismo_Sans.ttf', 18);
-        is($rc,'./Dustismo_Sans.ttf', "named");
+    $t->font_path(undef);
+    $rc = GD::Text::_find_TTF('Dustismo_Sans.ttf', 18);
+    is($rc,'./Dustismo_Sans.ttf', "named");
 }
 

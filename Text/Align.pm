@@ -1,8 +1,8 @@
-# $Id: Align.pm,v 1.17 2003/02/20 12:51:29 mgjv Exp $
+# $Id: Align.pm,v 1.18 2003/02/21 00:10:26 mgjv Exp $
 
 package GD::Text::Align;
 
-($GD::Text::Align::VERSION) = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
+($GD::Text::Align::VERSION) = '$Revision: 1.18 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -244,10 +244,9 @@ sub set_align
 sub _builtin_up
 {
     my $self = shift;
-    return (
+    return 
 	sin($self->{angle}) >  0.5 * sqrt(2) || 
 	sin($self->{angle}) < -0.5 * sqrt(2)
-    )
 }
 
 #

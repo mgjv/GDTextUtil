@@ -1,9 +1,9 @@
-# $Id: Text.pm,v 1.33 2003/02/20 12:51:29 mgjv Exp $
+# $Id: Text.pm,v 1.34 2003/02/21 00:10:23 mgjv Exp $
 
 package GD::Text;
 
-($GD::Text::prog_version) = '$Revision: 1.33 $' =~ /\s([\d.]+)/;
-$GD::Text::VERSION = '0.85';
+($GD::Text::prog_version) = '$Revision: 1.34 $' =~ /\s([\d.]+)/;
+$GD::Text::VERSION = '0.86';
 
 =head1 NAME
 
@@ -242,7 +242,6 @@ sub _find_TTF
     {
         # XXX Can I use File::Basename for this?
         my $file = "$path$psep$font";
-        #print "Trying $file\n";
         -f $file and return $file;
         # See if we can find one with an extension at the end
 	for my $ext (qw/ ttf TTF /)
