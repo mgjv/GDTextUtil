@@ -1,8 +1,8 @@
-# $Id: Align.pm,v 1.13 2000/03/18 05:56:52 mgjv Exp $
+# $Id: Align.pm,v 1.14 2003/02/03 06:06:23 mgjv Exp $
 
 package GD::Text::Align;
 
-$GD::Text::Align::VERSION = '$Revision: 1.13 $' =~ /\s([\d.]+)/;
+$GD::Text::Align::VERSION = '$Revision: 1.14 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -67,26 +67,26 @@ sub new
     my $gd    = shift;
     ref($gd) and $gd->isa('GD::Image') 
         or croak "Not a GD::Image object";
-	my $self = $class->SUPER::new() or return;
-	$self->{gd} = $gd;
-	$self->_init();
-	$self->set(@_);
+    my $self = $class->SUPER::new() or return;
+    $self->{gd} = $gd;
+    $self->_init();
+    $self->set(@_);
     bless $self => $class;
 }
 
 my %defaults = (
-	halign	=> 'left',
-	valign	=> 'base',
+    halign  => 'left',
+    valign  => 'base',
 );
 
 sub _init
 {
-	my $self = shift;
-	while (my ($k, $v) = each(%defaults))
-	{
-		$self->{$k} = $v;
-	}
-	$self->{colour} = $self->{gd}->colorsTotal - 1,
+    my $self = shift;
+    while (my ($k, $v) = each(%defaults))
+    {
+        $self->{$k} = $v;
+    }
+    $self->{colour} = $self->{gd}->colorsTotal - 1,
 }
 
 =head2 $align->set(attrib => value, ...)
@@ -114,30 +114,30 @@ of C<$align>.
 
 sub set
 {
-	my $self = shift;
-	$@ = "Incorrect attribute list", return if @_%2;
-	my %args = @_;
-	my @super;
+    my $self = shift;
+    $@ = "Incorrect attribute list", return if @_%2;
+    my %args = @_;
+    my @super;
 
-	foreach (keys %args)
-	{
-		/^valign/ and do {
-			$self->set_valign($args{$_}); 
-			next;
-		};
-		/^halign/ and do {
-			$self->set_halign($args{$_}); 
-			next;
-		};
-		/^colou?r$/ and do {
-			$self->{colour} = $args{$_};
-			next;
-		};
-		# Save anything unknown to pass off to SUPER class
-		push @super, $_, $args{$_};
-	}
+    foreach (keys %args)
+    {
+        /^valign/ and do {
+            $self->set_valign($args{$_}); 
+            next;
+        };
+        /^halign/ and do {
+            $self->set_halign($args{$_}); 
+            next;
+        };
+        /^colou?r$/ and do {
+            $self->{colour} = $args{$_};
+            next;
+        };
+        # Save anything unknown to pass off to SUPER class
+        push @super, $_, $args{$_};
+    }
 
-	$self->SUPER::set(@super);
+    $self->SUPER::set(@super);
 }
 
 =head2 $align->get(attribute)
@@ -176,19 +176,19 @@ Returns true on success, false on failure.
 
 sub set_valign
 {
-	my $self = shift;
-	local $_ = shift or return;
+    my $self = shift;
+    local $_ = shift or return;
 
-	if (/^top/ || /^center/ || /^bottom/ || /^base/) 
-	{
-		$self->{valign} = $_; 
-		return $_;
-	}
-	else
-	{
-		carp "Illegal vertical alignment: $_";
-		return;
-	}
+    if (/^top/ || /^center/ || /^bottom/ || /^base/) 
+    {
+        $self->{valign} = $_; 
+        return $_;
+    }
+    else
+    {
+        carp "Illegal vertical alignment: $_";
+        return;
+    }
 }
 
 =head2 $align->set_halign(value)
@@ -201,19 +201,19 @@ Returns true on success, false on failure.
 
 sub set_halign
 {
-	my $self = shift;
-	local $_ = shift or return;
+    my $self = shift;
+    local $_ = shift or return;
 
-	if (/^left/ || /^center/ || /^right/) 
-	{
-		$self->{halign} = $_; 
-		return $_;
-	}
-	else
-	{
-		carp "Illegal horizontal alignment: $_";
-		return;
-	}
+    if (/^left/ || /^center/ || /^right/) 
+    {
+        $self->{halign} = $_; 
+        return $_;
+    }
+    else
+    {
+        carp "Illegal horizontal alignment: $_";
+        return;
+    }
 }
 
 =head2 $align->set_align(valign, halign)
@@ -226,10 +226,10 @@ Returns true on success, false on failure.
 
 sub set_align
 {
-	my $self = shift;
+    my $self = shift;
 
-	$self->set_valign(shift) or return;
-	$self->set_halign(shift) or return;
+    $self->set_valign(shift) or return;
+    $self->set_halign(shift) or return;
 }
 
 #
@@ -238,16 +238,16 @@ sub set_align
 # angles between PI/4 and 3PI/4, 5PI/4 and 7PI/4, and all equivalents.
 #
 # return 
-#	true for stringUp
-#	false for string
+#   true for stringUp
+#   false for string
 #
 sub _builtin_up
 {
-	my $self = shift;
-	return (
-		sin($self->{angle}) > 0.5 * sqrt(2) || 
-		sin($self->{angle}) < -0.5 * sqrt(2)
-	)
+    my $self = shift;
+    return (
+        sin($self->{angle}) > 0.5 * sqrt(2) || 
+        sin($self->{angle}) < -0.5 * sqrt(2)
+    )
 }
 
 #
@@ -256,24 +256,24 @@ sub _builtin_up
 #
 sub _align
 {
-	my $self = shift;
-	my ($x, $y, $angle) = @_;
+    my $self = shift;
+    my ($x, $y, $angle) = @_;
 
-	defined $x  && defined $y or carp "Need X and Y coordinates", return;
-	$self->{angle} = $angle || 0;
+    defined $x  && defined $y or carp "Need X and Y coordinates", return;
+    $self->{angle} = $angle || 0;
 
-	if ($self->is_builtin)
-	{
-		return $self->_align_builtin($x, $y);
-	}
-	elsif ($self->is_ttf)
-	{
-		return $self->_align_ttf($x, $y);
-	}
-	else
-	{
-		confess "Impossible error in GD::Text::Align::_align";
-	}
+    if ($self->is_builtin)
+    {
+        return $self->_align_builtin($x, $y);
+    }
+    elsif ($self->is_ttf)
+    {
+        return $self->_align_ttf($x, $y);
+    }
+    else
+    {
+        confess "Impossible error in GD::Text::Align::_align";
+    }
 }
 
 #
@@ -281,33 +281,33 @@ sub _align
 #
 sub _align_builtin
 {
-	my $self = shift;
-	my ($x, $y) = @_;
+    my $self = shift;
+    my ($x, $y) = @_;
 
-	# Swap coordinates and make sure to keep the sign right, since left
-	# becomes _down_ (larger) and right becomes _up_ (smaller)
-	($x, $y) = (-$y, $x) if ($self->_builtin_up);
+    # Swap coordinates and make sure to keep the sign right, since left
+    # becomes _down_ (larger) and right becomes _up_ (smaller)
+    ($x, $y) = (-$y, $x) if ($self->_builtin_up);
 
-	for ($self->{halign})
-	{
-		#/^left/   and $x = $x;
-		/^center/ and $x -= $self->{width}/2;
-		/^right/  and $x -= $self->{width};
-	}
-	for ($self->{valign})
-	{
-		#/^top/    and $y = $y;
-		/^center/ and $y -= $self->{height}/2;
-		/^bottom/ and $y -= $self->{height};
-		/^base/   and $y -= $self->{height};
-	}
+    for ($self->{halign})
+    {
+        #/^left/   and $x = $x;
+        /^center/ and $x -= $self->{width}/2;
+        /^right/  and $x -= $self->{width};
+    }
+    for ($self->{valign})
+    {
+        #/^top/    and $y = $y;
+        /^center/ and $y -= $self->{height}/2;
+        /^bottom/ and $y -= $self->{height};
+        /^base/   and $y -= $self->{height};
+    }
 
-	($x, $y) = ($y, -$x) if ($self->_builtin_up);
+    ($x, $y) = ($y, -$x) if ($self->_builtin_up);
 
-	$self->{'x'} = $x;
-	$self->{'y'} = $y;
+    $self->{'x'} = $x;
+    $self->{'y'} = $y;
 
-	return 1;
+    return 1;
 }
 
 #
@@ -315,43 +315,43 @@ sub _align_builtin
 #
 sub _align_ttf
 {
-	my $self = shift;
-	my ($x, $y) = @_;
-	my $phi = $self->{angle};
+    my $self = shift;
+    my ($x, $y) = @_;
+    my $phi = $self->{angle};
 
-	for ($self->{halign})
-	{
-		#/^left/ and $x = $x;
-		/^center/ and do {
-			$x -= cos($phi) * $self->{width}/2;
-			$y += sin($phi) * $self->{width}/2;
-		};
-		/^right/  and do {
-			$x -= cos($phi) * $self->{width};
-			$y += sin($phi) * $self->{width};
-		};
-	}
-	for ($self->{valign})
-	{
-		/^top/    and do {
-			$x += sin($phi) * $self->{char_up};
-			$y += cos($phi) * $self->{char_up};
-		};
-		/^center/ and do {
-			$x -= sin($phi) * ($self->{char_down} - $self->{height}/2);
-			$y -= cos($phi) * ($self->{char_down} - $self->{height}/2);
-		};
-		/^bottom/ and do {
-			$x -= sin($phi) * $self->{char_down};
-			$y -= cos($phi) * $self->{char_down};
-		};
-		#/^base/   and $y = $y;
-	}
+    for ($self->{halign})
+    {
+        #/^left/ and $x = $x;
+        /^center/ and do {
+            $x -= cos($phi) * $self->{width}/2;
+            $y += sin($phi) * $self->{width}/2;
+        };
+        /^right/  and do {
+            $x -= cos($phi) * $self->{width};
+            $y += sin($phi) * $self->{width};
+        };
+    }
+    for ($self->{valign})
+    {
+        /^top/    and do {
+            $x += sin($phi) * $self->{char_up};
+            $y += cos($phi) * $self->{char_up};
+        };
+        /^center/ and do {
+            $x -= sin($phi) * ($self->{char_down} - $self->{height}/2);
+            $y -= cos($phi) * ($self->{char_down} - $self->{height}/2);
+        };
+        /^bottom/ and do {
+            $x -= sin($phi) * $self->{char_down};
+            $y -= cos($phi) * $self->{char_down};
+        };
+        #/^base/   and $y = $y;
+    }
 
-	$self->{'x'} = $x;
-	$self->{'y'} = $y;
+    $self->{'x'} = $x;
+    $self->{'y'} = $y;
 
-	return 1;
+    return 1;
 }
 
 =head2 $align->draw(x, y, angle)
@@ -369,41 +369,41 @@ Returns the bounding box of the drawn string (see C<bounding_box()>).
 
 sub draw
 {
-	my $self = shift;
-	my ($x, $y, $angle) = @_;
+    my $self = shift;
+    my ($x, $y, $angle) = @_;
 
-	$@ = "No text set", return unless defined $self->{text};
-	$@ = "No colour set", return unless defined $self->{colour};
+    $@ = "No text set", return unless defined $self->{text};
+    $@ = "No colour set", return unless defined $self->{colour};
 
-	$self->_align($x, $y, $angle) or return;
+    $self->_align($x, $y, $angle) or return;
 
-	if ($self->is_builtin)
-	{
-		if ($self->_builtin_up)
-		{
-			$self->{gd}->stringUp($self->{font}, 
-				$self->{'x'}, $self->{'y'},
-				$self->{text}, $self->{colour});
-		}
-		else
-		{
-			$self->{gd}->string($self->{font}, 
-				$self->{'x'}, $self->{'y'},
-				$self->{text}, $self->{colour});
-		}
-	}
-	elsif ($self->is_ttf)
-	{
-		$self->{gd}->stringTTF($self->{colour}, 
-			$self->{font}, $self->{ptsize},
-			$self->{angle}, $self->{'x'}, $self->{'y'}, $self->{text});
-	}
-	else
-	{
-		confess "impossible error in GD::Text::Align::draw";
-	}
+    if ($self->is_builtin)
+    {
+        if ($self->_builtin_up)
+        {
+            $self->{gd}->stringUp($self->{font}, 
+                $self->{'x'}, $self->{'y'},
+                $self->{text}, $self->{colour});
+        }
+        else
+        {
+            $self->{gd}->string($self->{font}, 
+                $self->{'x'}, $self->{'y'},
+                $self->{text}, $self->{colour});
+        }
+    }
+    elsif ($self->is_ttf)
+    {
+        $self->{gd}->stringTTF($self->{colour}, 
+            $self->{font}, $self->{ptsize},
+            $self->{angle}, $self->{'x'}, $self->{'y'}, $self->{text});
+    }
+    else
+    {
+        confess "impossible error in GD::Text::Align::draw";
+    }
 
-	return $self->bounding_box($x, $y, $angle);
+    return $self->bounding_box($x, $y, $angle);
 }
 
 =head2 $align->bounding_box(x, y, angle)
@@ -426,44 +426,44 @@ string or change the font size prior to actually drawing the string.
 
 sub bounding_box
 {
-	my $self = shift;
-	my ($x, $y, $angle) = @_;
+    my $self = shift;
+    my ($x, $y, $angle) = @_;
 
-	$@ = "No text set", return unless defined $self->{text};
+    $@ = "No text set", return unless defined $self->{text};
 
-	$self->_align($x, $y, $angle) or return;
+    $self->_align($x, $y, $angle) or return;
 
-	if ($self->is_builtin)
-	{
-		if ($self->_builtin_up)
-		{
-			return (
-				$self->{'x'} + $self->{height}, $self->{'y'},
-				$self->{'x'} + $self->{height}, $self->{'y'} - $self->{width},
-				$self->{'x'}                  , $self->{'y'} - $self->{width},
-				$self->{'x'}                  , $self->{'y'},
-			)
-		}
-		else
-		{
-			return (
-				$self->{'x'}                 , $self->{'y'} + $self->{height},
-				$self->{'x'} + $self->{width}, $self->{'y'} + $self->{height},
-				$self->{'x'} + $self->{width}, $self->{'y'},
-				$self->{'x'}                 , $self->{'y'},
-			)
-		}
-	}
-	elsif ($self->is_ttf)
-	{
-		return GD::Image->stringTTF($self->{colour}, 
-			$self->{font}, $self->{ptsize},
-			$self->{angle}, $self->{'x'}, $self->{'y'}, $self->{text});
-	}
-	else
-	{
-		confess "impossible error in GD::Text::Align::draw";
-	}
+    if ($self->is_builtin)
+    {
+        if ($self->_builtin_up)
+        {
+            return (
+                $self->{'x'} + $self->{height}, $self->{'y'},
+                $self->{'x'} + $self->{height}, $self->{'y'} - $self->{width},
+                $self->{'x'}                  , $self->{'y'} - $self->{width},
+                $self->{'x'}                  , $self->{'y'},
+            )
+        }
+        else
+        {
+            return (
+                $self->{'x'}                 , $self->{'y'} + $self->{height},
+                $self->{'x'} + $self->{width}, $self->{'y'} + $self->{height},
+                $self->{'x'} + $self->{width}, $self->{'y'},
+                $self->{'x'}                 , $self->{'y'},
+            )
+        }
+    }
+    elsif ($self->is_ttf)
+    {
+        return GD::Image->stringTTF($self->{colour}, 
+            $self->{font}, $self->{ptsize},
+            $self->{angle}, $self->{'x'}, $self->{'y'}, $self->{text});
+    }
+    else
+    {
+        confess "impossible error in GD::Text::Align::draw";
+    }
 }
 
 =head1 NOTES

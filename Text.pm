@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.27 2002/07/03 12:29:58 mgjv Exp $
+# $Id: Text.pm,v 1.28 2003/02/03 06:06:23 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::prog_version = '$Revision: 1.27 $' =~ /\s([\d.]+)/;
+$GD::Text::prog_version = '$Revision: 1.28 $' =~ /\s([\d.]+)/;
 $GD::Text::VERSION = '0.84';
 
 =head1 NAME
@@ -421,7 +421,8 @@ sub width
     my $string = shift;
     my $save   = $self->get('text');
 
-    $self->set_text($string) or return;
+    my $len = $self->set_text($string);
+    return unless defined $len;
     my $w = $self->get('width');
     $self->set_text($save);
 
@@ -461,9 +462,13 @@ BEGIN
     # Build a string of all characters that are printable, and that are
     # not whitespace.
     eval {
-        require POSIX; 
-        import POSIX qw/isgraph/;
-        $test_string = join '', grep isgraph($_), map chr($_), (0x00..0xFF);
+        use POSIX qw/isspace isprint isgraph/; 
+        # isgraph() is broken on perl 5.8.0 on Redhat 8.0 (and
+        # possibly on other platforms)
+        #$test_string = join '', grep isgraph($_), map chr($_), (0x00..0xFF);
+        $test_string = join '', 
+            /^[[:graph:]]/, 
+            map chr($_), (0x00..0xFF);
     };
 
     if ($@)
@@ -489,9 +494,9 @@ sub _recalc
     if ($self->is_builtin)
     {
         $self->{height} =
-        $self->{char_up} = $self->{font}->height();
+            $self->{char_up} = $self->{font}->height();
         $self->{char_down} = 0;
-        $self->{space} = $self->{font}->width();
+            $self->{space} = $self->{font}->width();
     }
     elsif ($self->is_ttf)
     {
@@ -630,8 +635,9 @@ encodings.  Fonts that have other characteristics may not work well.
 If that happens, please let me know how to make this work better.
 
 The font height gets estimated by building a string with all printable
-characters that pass the POSIX::isgraph() test. If your system doesn't
-have POSIX, I make an approximation that may be false.
+characters (with an ordinal value between 0 and 255) that pass the
+POSIX::isprint() test (and not the isspace() test). If your system
+doesn't have POSIX, I make an approximation that may be false.
 
 The whole font path thing works well on Unix, but probably not very well
 on other OS's. This is only a problem if you try to use a font path. If

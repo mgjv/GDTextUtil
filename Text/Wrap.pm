@@ -1,8 +1,8 @@
-# $Id: Wrap.pm,v 1.17 2002/01/19 05:14:06 mgjv Exp $
+# $Id: Wrap.pm,v 1.18 2003/02/03 06:06:23 mgjv Exp $
 
 package GD::Text::Wrap;
 
-$GD::Text::Wrap::VERSION = '$Revision: 1.17 $' =~ /\s([\d.]+)/;
+$GD::Text::Wrap::VERSION = '$Revision: 1.18 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -58,13 +58,13 @@ use GD::Text::Align;
 use Carp;
 
 my %attribs = (
-	width		=> undef,
-	height		=> undef,
+    width       => undef,
+    height      => undef,
     line_space  => 2,
     para_space  => 0,
     align       => 'justified',
-	text		=> undef,
-	preserve_nl	=> 0,
+    text        => undef,
+    preserve_nl => 0,
 );
 
 =head2 GD::Text::Wrap->new( $gd_object, attribute => value, ... )
@@ -93,18 +93,18 @@ sub _init
 {
     my $self = shift;
 
-	$self->{render} = GD::Text::Align->new($self->{gd}, text => 'Foo');
-	croak "Cannot allocate GD::Text::Align object" unless $self->{render};
+    $self->{render} = GD::Text::Align->new($self->{gd}, text => 'Foo');
+    croak "Cannot allocate GD::Text::Align object" unless $self->{render};
 
-	# XXX 5.004_04 doesn't like foreach as a modifier
-	#$self->set($_, $attribs{$_}) foreach (keys %attribs);
-	foreach (keys %attribs) { $self->set($_, $attribs{$_}) };
-	# XXX SET DEFAULTS
+    # XXX 5.004_04 doesn't like foreach as a modifier
+    #$self->set($_, $attribs{$_}) foreach (keys %attribs);
+    foreach (keys %attribs) { $self->set($_, $attribs{$_}) };
+    # XXX SET DEFAULTS
 
     $self->set(
-		colour => $self->{gd}->colorsTotal - 1,
-		width  => ($self->{gd}->getBounds())[0] - 1,
-	);
+        colour => $self->{gd}->colorsTotal - 1,
+        width  => ($self->{gd}->getBounds())[0] - 1,
+    );
 }
 
 =head2 $wrapbox->set( attribute => value, ... )
@@ -157,11 +157,11 @@ the GD::Text::Align class.
 
 sub _attrib_name
 {
-	my $attrib = shift;
-	$attrib = 'colour'      if $attrib eq 'color';
-	$attrib = 'align'       if $attrib =~ /^align/;
-	$attrib = 'para_space'  if $attrib eq 'paragraph_space';
-	$attrib;
+    my $attrib = shift;
+    $attrib = 'colour'      if $attrib eq 'color';
+    $attrib = 'align'       if $attrib =~ /^align/;
+    $attrib = 'para_space'  if $attrib eq 'paragraph_space';
+    $attrib;
 }
 
 sub set
@@ -170,20 +170,20 @@ sub set
     my %args = @_;
 
     while (my ($attrib, $val) =  each %args)
-	{
-		# This spelling problem keeps bugging me.
-		SWITCH: for (_attrib_name($attrib))
-		{
-			exists $attribs{$_} and 
-				$self->{$_} = $val, last SWITCH;
-			
-			# If we don't have this attribute, maybe the GD::Text::Align
-			# object can use it (for colour mainly at the moment)
-			$self->{render}->set($_ => $val) and last SWITCH;
+    {
+        # This spelling problem keeps bugging me.
+        SWITCH: for (_attrib_name($attrib))
+        {
+            exists $attribs{$_} and 
+                $self->{$_} = $val, last SWITCH;
+            
+            # If we don't have this attribute, maybe the GD::Text::Align
+            # object can use it (for colour mainly at the moment)
+            $self->{render}->set($_ => $val) and last SWITCH;
 
-			carp "No attribute $attrib";
-		}
-	}
+            carp "No attribute $attrib";
+        }
+    }
 }
 
 =head2 $wrapbox->get( attribute );
@@ -195,9 +195,9 @@ the C<set()> method can be retrieved
 
 sub get 
 { 
-	my $self = shift;
-	my $attrib = shift;
-	$self->{_attrib_name($attrib)} 
+    my $self = shift;
+    my $attrib = shift;
+    $self->{_attrib_name($attrib)} 
 }
 
 =head2 $wrapbox->get_bounds()
@@ -206,7 +206,7 @@ Returns the bounding box of the box that will be drawn with the current
 attribute settings as a list. The values returned are the coordinates of
 the upper left and lower right corner.
 
-	($left, $top, $right, $bottom) = $wrapbox->get_bounds();
+        ($left, $top, $right, $bottom) = $wrapbox->get_bounds();
 
 Returns an empty list on error.
 
@@ -220,7 +220,7 @@ my $dry_run = 0;
 sub get_bounds
 {
     my $self = shift;
-	$dry_run = 1;
+    $dry_run = 1;
     return $self->draw(@_);
 }
 
@@ -230,44 +230,43 @@ sub get_bounds
 
 sub _move_to_top
 {
-	my $self = shift;
-	$self->{_y_pos} = $self->{top} + $self->{render}->get('char_up');
+    my $self = shift;
+    $self->{_y_pos} = $self->{top} + $self->{render}->get('char_up');
 }
 
 sub _at_top
 {
-	my $self = shift;
-	$self->{_y_pos} == $self->{top} + $self->{render}->get('char_up');
+    my $self = shift;
+    $self->{_y_pos} == $self->{top} + $self->{render}->get('char_up');
 }
 
 sub _set_bottom
 {
-	my $self = shift;
-	$self->{bottom} = $self->{_y_pos} + $self->{render}->get('char_down');
+    my $self = shift;
+    $self->{bottom} = $self->{_y_pos} + $self->{render}->get('char_down');
 }
 
 sub _crlf
 {
-	my $self = shift;
+    my $self = shift;
 
-	$self->{_y_pos} += $self->{render}->get('height') + 
-	                   $self->{line_space}
+    $self->{_y_pos} += $self->{render}->get('height') + 
+                       $self->{line_space}
 }
 
 sub _new_paragraph
 {
-	my $self = shift;
-	$self->_crlf;
-	$self->{_y_pos} += $self->{para_space};
+    my $self = shift;
+    $self->_crlf;
+    $self->{_y_pos} += $self->{para_space};
 }
 
 sub _undo_new_paragraph
 {
-	my $self = shift;
+    my $self = shift;
 
-	$self->{_y_pos} -= $self->{render}->get('height') + 
-	                   $self->{line_space} +
-					   $self->{para_space};
+    $self->{_y_pos} -= $self->{render}->get('height') + 
+                       $self->{line_space} + $self->{para_space};
 }
 
 =head2 $wrapbox->draw(x, y)
@@ -282,32 +281,32 @@ implementation that allows angled boxes.
 
 sub draw
 {
-    my $self 		= shift;
-	$self->{left} 	= shift;
-	defined($self->{left}) or return;
-	$self->{top} 	= shift;
-	defined($self->{top}) or return;
-	$self->{angle} 	= shift || 0; #unused
+    my $self            = shift;
+    $self->{left}       = shift;
+    defined($self->{left}) or return;
+    $self->{top}        = shift;
+    defined($self->{top}) or return;
+    $self->{angle}      = shift || 0; #unused
 
-	return unless $self->{text};
+    return unless $self->{text};
 
-	$self->{right} = $self->{left} + $self->{width};
-	$self->_move_to_top;
+    $self->{right} = $self->{left} + $self->{width};
+    $self->_move_to_top;
 
-	# FIXME We need a better paragraph separation RE
-	foreach my $paragraph (split '\n\n+', $self->{text})
-	#foreach my $paragraph ($self->{text})
-	{
-		$self->_draw_paragraph($paragraph);
-		$self->_new_paragraph;
-	}
+    # FIXME We need a better paragraph separation RE
+    foreach my $paragraph (split '\n\n+', $self->{text})
+    #foreach my $paragraph ($self->{text})
+    {
+        $self->_draw_paragraph($paragraph);
+        $self->_new_paragraph;
+    }
 
-	$self->_undo_new_paragraph; # FIXME Yuck
+    $self->_undo_new_paragraph; # FIXME Yuck
 
-	# Reset dry_run
-	$dry_run = 0;
+    # Reset dry_run
+    $dry_run = 0;
 
-	$self->_set_bottom;
+    $self->_set_bottom;
     return (
         $self->{left}, $self->{top},
         $self->{right}, $self->{bottom}
@@ -316,120 +315,119 @@ sub draw
 
 sub _draw_paragraph
 {
-	my $self = shift;
-	my $text = shift;
+    my $self = shift;
+    my $text = shift;
 
-	my @line = ();
-	foreach my $word (split /(\s+)/, $text)
-	{
-		# Number of newlines
-		my $nnl = $self->{preserve_nl} ? $word =~ y/\n// : 0;
-		# Length of the whole line with this new word
-		my $len = $nnl ? 0 : $self->{render}->width(join(' ', @line, $word));
+    my @line = ();
+    foreach my $word (split /(\s+)/, $text)
+    {
+        # Number of newlines
+        my $nnl = $self->{preserve_nl} ? $word =~ y/\n// : 0;
+        # Length of the whole line with this new word
+        my $len = $nnl ? 0 : $self->{render}->width(join(' ', @line, $word));
+        # If this is a separator without newlines, continue with next
+        next if !$nnl && $word =~ /^\s+$/;
 
-		# If this is a separator without newlines, continue with next
-		next if !$nnl && $word =~ /^\s+$/;
-
-		if (($len > $self->{right} - $self->{left} || $nnl) && @line)
-		{
-			$self->_draw_line(@line) unless $dry_run;
-			@line = ();
-			$self->_crlf;
-			# XXX 5.004 compatibility
-			#$self->_crlf for (2..$nnl);
-			for (2..$nnl) { $self->_crlf }
-		}
-		# Store the new word, unless it's just newlines
-		push @line, $word unless $nnl;
-	}
-	# Take care of the last line
-	$self->_draw_last_line(@line) unless $dry_run;
+        if (($len > $self->{right} - $self->{left} || $nnl) && @line)
+        {
+            $self->_draw_line(@line) unless $dry_run;
+            @line = ();
+            $self->_crlf;
+            # XXX 5.004 compatibility
+            #$self->_crlf for (2..$nnl);
+            for (2..$nnl) { $self->_crlf }
+        }
+        # Store the new word, unless it's just newlines
+        push @line, $word unless $nnl;
+    }
+    # Take care of the last line
+    $self->_draw_last_line(@line) unless $dry_run;
 }
 
 sub _draw_line
 {
-	my $self = shift;
-	$self->__draw_line(0, @_);
+    my $self = shift;
+    $self->__draw_line(0, @_);
 }
 
 sub _draw_last_line
 {
-	my $self = shift;
-	$self->__draw_line(1, @_);
+    my $self = shift;
+    $self->__draw_line(1, @_);
 }
 
 sub __draw_line
 {
-	my $self = shift;
-	# We need the following for justification only
-	my $last = shift;
+    my $self = shift;
+    # We need the following for justification only
+    my $last = shift;
 
     for ($self->{align})
     {
-		/^just/i	and !$last and do
-		{
-			$self->_draw_justified_line(@_);
-			last;
-		};
+        /^just/i        and !$last and do
+        {
+            $self->_draw_justified_line(@_);
+            last;
+        };
         /^right/i   and do 
-		{
-			$self->{render}->set_text(join(' ', @_));
-			$self->{render}->set_halign('right');
-			$self->{render}->draw($self->{right}, $self->{_y_pos});
-			last;
-		};
+        {
+            $self->{render}->set_text(join(' ', @_));
+            $self->{render}->set_halign('right');
+            $self->{render}->draw($self->{right}, $self->{_y_pos});
+            last;
+        };
         /^center/i  and do
-		{
-			$self->{render}->set_text(join(' ', @_));
-			$self->{render}->set_halign('left');
-			my $x = ($self->{right} + $self->{left} - 
-				$self->{render}->get('width')) / 2;
-			$self->{render}->draw($x, $self->{_y_pos});
-			last;
-		};
+        {
+            $self->{render}->set_text(join(' ', @_));
+            $self->{render}->set_halign('left');
+            my $x = ($self->{right} + $self->{left} - 
+                    $self->{render}->get('width')) / 2;
+            $self->{render}->draw($x, $self->{_y_pos});
+            last;
+        };
         # default action, left justification
-		$self->{render}->set_text(join(' ', @_));
-		$self->{render}->set_halign('left');
-		$self->{render}->draw($self->{left}, $self->{_y_pos});
+        $self->{render}->set_text(join(' ', @_));
+        $self->{render}->set_halign('left');
+        $self->{render}->draw($self->{left}, $self->{_y_pos});
     }
 }
 
 sub _draw_justified_line
 {
-	my $self = shift;
-	my $y = $self->{_y_pos};
-	my $x = $self->{left};
+    my $self = shift;
+    my $y = $self->{_y_pos};
+    my $x = $self->{left};
 
-	$self->{render}->set_halign('left');
+    $self->{render}->set_halign('left');
 
-	my @lengths = ();
-	my $length = 0;
-	# first, calculate the lengths of the individual words
-	foreach my $word (@_)
-	{
-		$self->{render}->set_text($word);
-		my $len = $self->{render}->get('width');
-		push @lengths, $len;
-		$length += $len;
-	}
+    my @lengths = ();
+    my $length = 0;
+    # first, calculate the lengths of the individual words
+    foreach my $word (@_)
+    {
+        $self->{render}->set_text($word);
+        my $len = $self->{render}->get('width');
+        push @lengths, $len;
+        $length += $len;
+    }
 
-	# Calculate the average space between words
-	my $space = ($self->{right} - $self->{left} - $length)/($#_ || 1);
+    # Calculate the average space between words
+    my $space = ($self->{right} - $self->{left} - $length)/($#_ || 1);
 
-	# Draw all the words, except the last one
-	for (my $i = 0; $i < $#_; $i++)
-	{
-		$self->{render}->set_text($_[$i]);
-		$self->{render}->draw($x, $y);
-		$x += $lengths[$i] + $space;
-	}
+    # Draw all the words, except the last one
+    for (my $i = 0; $i < $#_; $i++)
+    {
+        $self->{render}->set_text($_[$i]);
+        $self->{render}->draw($x, $y);
+        $x += $lengths[$i] + $space;
+    }
 
-	# Draw the last word
-	# XXX This will make a single word that's too long stick out the
-	# right side of the box. is that what we want?
-	$self->{render}->set_halign('right');
-	$self->{render}->set_text($_[-1]);
-	$self->{render}->draw($self->{right}, $y);
+    # Draw the last word
+    # XXX This will make a single word that's too long stick out the
+    # right side of the box. is that what we want?
+    $self->{render}->set_halign('right');
+    $self->{render}->set_text($_[-1]);
+    $self->{render}->draw($self->{right}, $y);
 }
 
 
@@ -438,9 +436,9 @@ sub _draw_justified_line
 use vars qw($AUTOLOAD);
 sub AUTOLOAD
 {
-	my $self = shift;
-	my ($method) = $AUTOLOAD =~ /.*::(.*)$/;
-	$self->{render}->$method(@_) if ($method ne 'DESTROY');
+    my $self = shift;
+    my ($method) = $AUTOLOAD =~ /.*::(.*)$/;
+    $self->{render}->$method(@_) if ($method ne 'DESTROY');
 }
 
 =head1 NOTES
