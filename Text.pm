@@ -1,9 +1,9 @@
-# $Id: Text.pm,v 1.26 2002/06/14 23:17:32 mgjv Exp $
+# $Id: Text.pm,v 1.27 2002/07/03 12:29:58 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::prog_version = '$Revision: 1.26 $' =~ /\s([\d.]+)/;
-$GD::Text::VERSION = '0.83';
+$GD::Text::prog_version = '$Revision: 1.27 $' =~ /\s([\d.]+)/;
+$GD::Text::VERSION = '0.84';
 
 =head1 NAME
 
@@ -512,7 +512,7 @@ sub _recalc
         confess "Impossible error in GD::Text::_recalc.";
     }
 
-    $self->_recalc_width() if $self->{text};
+    $self->_recalc_width() if defined $self->{text};
 
     return 1;
 }

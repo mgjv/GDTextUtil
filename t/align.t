@@ -4,7 +4,7 @@
 use lib ".", "..";
 require "t/lib.pl";
 
-BEGIN { $| = 1; print "1..20\n"; }
+BEGIN { $| = 1; print "1..22\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use GD;
 use GD::Text::Align;
@@ -20,7 +20,7 @@ print 'not ' unless defined $gd;
 printf "ok %d\n", $i++;
 
 $gd->colorAllocate(255,255,255);
-$gd->colorAllocate(0,0,0);
+$black = $gd->colorAllocate(0,0,0);
 print 'not ' unless $gd->colorsTotal == 2;
 printf "ok %d\n", $i++;
 
@@ -87,12 +87,27 @@ $t = GD::Text::Align->new($gd,
     valign => 'top',
     halign => 'left',
     text => 'Banana Boat',
-    colour => 1,
+    colour => $black,
     font => gdGiantFont,
 );
 @bb = $t->draw(10,10);
 #print "$i = @bb\n";
 print 'not ' unless ("@bb" eq "10 25 109 25 109 10 10 10");
+printf "ok %d\n", $i++;
+
+# Test a '0' string
+$t = GD::Text::Align->new($gd,
+    text   => '0',
+    font   => GD::gdLargeFont,
+    valign => 'bottom',
+    halign => 'center',
+    colour => $black);
+print 'not ' unless defined $t;
+printf "ok %d\n", $i++;
+
+@bb = $t->draw(100, 200);
+#print "$i: @bb\n";
+print 'not ' unless ("@bb" eq "96 200 104 200 104 184 96 184");
 printf "ok %d\n", $i++;
 
 # TTF fonts
@@ -102,7 +117,7 @@ if ($t->can_do_ttf)
         valign => 'top',
         halign => 'left',
         text => 'Banana Boat',
-        colour => 1,
+        colour => $black,
         ptsize => 18,
     );
 
