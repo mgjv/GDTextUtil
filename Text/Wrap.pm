@@ -1,8 +1,8 @@
-# $Id: Wrap.pm,v 1.14 2000/04/30 04:49:39 mgjv Exp $
+# $Id: Wrap.pm,v 1.15 2000/09/18 08:27:13 mgjv Exp $
 
 package GD::Text::Wrap;
 
-$GD::Text::Wrap::VERSION = '$Revision: 1.14 $' =~ /\s([\d.]+)/;
+$GD::Text::Wrap::VERSION = '$Revision: 1.15 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -61,8 +61,10 @@ my %attribs = (
 	width		=> undef,
 	height		=> undef,
     line_space  => 2,
+    para_space  => 0,
     align       => 'justified',
 	text		=> undef,
+	preserve_nl	=> 0,
 );
 
 =head2 GD::Text::Wrap->new( $gd_object, attribute => value, ... )
@@ -120,6 +122,11 @@ default to the width of the GD::Image object.
 
 The number of pixels between lines. Defaults to 2.
 
+=item para_space, paragraph_space
+
+The number of extra pixels between paragraphs, above line_space.
+Defaults to 0.
+
 =item color, colour
 
 Synonyms. The colour to use when drawing the font. Will be initialised
@@ -134,12 +141,28 @@ Synonyms. One of 'justified' (the default), 'left', 'right' or 'center'.
 The text to draw. This is the only attribute that you absolutely have to
 set.
 
+=item preserve_nl
+
+If set to a true value, newlines in the text will cause a line break.
+Note that lines will still be justified. If only one word appears on
+the line, it could get ugly.
+Defaults to 0.
+
 =back
 
 As with the methods, attributes unknown to this class get delegated to
 the GD::Text::Align class. 
 
 =cut
+
+sub _attrib_name
+{
+	my $attrib = shift;
+	$attrib = 'colour'      if $attrib eq 'color';
+	$attrib = 'align'       if $attrib =~ /^align/;
+	$attrib = 'para_space'  if $attrib eq 'paragraph_space';
+	$attrib;
+}
 
 sub set
 {
@@ -149,16 +172,14 @@ sub set
     while (my ($attrib, $val) =  each %args)
 	{
 		# This spelling problem keeps bugging me.
-		$attrib = 'colour' if $attrib eq 'color';
-		$attrib = 'align'  if $attrib =~ /^align/;
-		SWITCH: for ($attrib)
+		SWITCH: for (_attrib_name($attrib))
 		{
-			exists $attribs{$attrib} and 
-				$self->{$attrib} = $val, last SWITCH;
+			exists $attribs{$_} and 
+				$self->{$_} = $val, last SWITCH;
 			
 			# If we don't have this attribute, maybe the GD::Text::Align
 			# object can use it (for colour mainly at the moment)
-			$self->{render}->set($attrib => $val) and last SWITCH;
+			$self->{render}->set($_ => $val) and last SWITCH;
 
 			carp "No attribute $attrib";
 		}
@@ -176,10 +197,7 @@ sub get
 { 
 	my $self = shift;
 	my $attrib = shift;
-
-	$attrib = 'colour' if $attrib eq 'color';
-	$attrib = 'align'  if $attrib =~ /^align/;
-	$self->{$attrib} 
+	$self->{_attrib_name($attrib)} 
 }
 
 =head2 $wrapbox->get_bounds()
@@ -206,6 +224,52 @@ sub get_bounds
     return $self->draw(@_);
 }
 
+#
+# Vertical movement and state
+#
+
+sub _move_to_top
+{
+	my $self = shift;
+	$self->{_y_pos} = $self->{top} + $self->{render}->get('char_up');
+}
+
+sub _at_top
+{
+	my $self = shift;
+	$self->{_y_pos} == $self->{top} + $self->{render}->get('char_up');
+}
+
+sub _set_bottom
+{
+	my $self = shift;
+	$self->{bottom} = $self->{_y_pos} + $self->{render}->get('char_down');
+}
+
+sub _crlf
+{
+	my $self = shift;
+
+	$self->{_y_pos} += $self->{render}->get('height') + 
+	                   $self->{line_space}
+}
+
+sub _new_paragraph
+{
+	my $self = shift;
+	$self->_crlf;
+	$self->{_y_pos} += $self->{para_space};
+}
+
+sub _rev_paragraph
+{
+	my $self = shift;
+
+	$self->{_y_pos} -= $self->{render}->get('height') + 
+	                   $self->{line_space} +
+					   $self->{para_space};
+}
+
 =head2 $wrapbox->draw(x, y)
 
 Draw the box, with (x,y) as the top right corner. 
@@ -223,55 +287,93 @@ sub draw
 	$self->{top} 	= shift or return;
 	$self->{angle} 	= shift || 0; #unused
 
-	$self->{right} = $self->{left} + $self->{width};
-
 	return unless $self->{text};
 
-	my $y = $self->{top} + $self->{render}->get('char_up');
-	my @line = ();
-	foreach my $word (split(' ', $self->{text}))
+	$self->{right} = $self->{left} + $self->{width};
+	$self->_move_to_top;
+
+	# FIXME We need a better paragraph separation RE
+	foreach my $paragraph (split '\n\n+', $self->{text})
+	#foreach my $paragraph ($self->{text})
 	{
-        my $len = $self->{render}->width(join(' ', @line, $word));
-		if ($len > $self->{right} - $self->{left} && @line)
-		{
-			$self->_draw_line(0, $y, @line) unless $dry_run;
-			@line = ();
-			$y += $self->{render}->get('height') + $self->{line_space};
-		}
-		push @line, $word;
+		$self->_draw_paragraph($paragraph);
+		$self->_new_paragraph;
 	}
-	# take care of the last line
-	$self->_draw_line(1, $y, @line) unless $dry_run;
+
+	$self->_rev_paragraph; # FIXME Yuck
 
 	# Reset dry_run
 	$dry_run = 0;
 
-	$self->{bottom} = $y + $self->{render}->get('char_down');
+	$self->_set_bottom;
     return (
         $self->{left}, $self->{top},
         $self->{right}, $self->{bottom}
     )
 }
 
+sub _draw_paragraph
+{
+	my $self = shift;
+	my $text = shift;
+
+	my @line = ();
+	foreach my $word (split qr/(\s+)/, $text)
+	{
+		# Number of newlines
+		my $nnl = $self->{preserve_nl} ? $word =~ y/\n// : 0;
+		# Length of the whole line with this new word
+		my $len = $nnl ? 0 : $self->{render}->width(join(' ', @line, $word));
+
+		# If this is a separator without newlines, continue with next
+		next if !$nnl && $word =~ /^\s+$/;
+
+		if (($len > $self->{right} - $self->{left} || $nnl) && @line)
+		{
+			$self->_draw_line(@line) unless $dry_run;
+			@line = ();
+			$self->_crlf;
+			# XXX 5.004 compatibility
+			#$self->_crlf for (2..$nnl);
+			for (2..$nnl) { $self->_crlf }
+		}
+		# Store the new word, unless it's just newlines
+		push @line, $word unless $nnl;
+	}
+	# Take care of the last line
+	$self->_draw_last_line(@line) unless $dry_run;
+}
+
 sub _draw_line
 {
 	my $self = shift;
-	# we need the following for justification only
+	$self->__draw_line(0, @_);
+}
+
+sub _draw_last_line
+{
+	my $self = shift;
+	$self->__draw_line(1, @_);
+}
+
+sub __draw_line
+{
+	my $self = shift;
+	# We need the following for justification only
 	my $last = shift;
-	my $y = shift;
 
     for ($self->{align})
     {
 		/^just/i	and !$last and do
 		{
-			$self->_draw_justified_line($y, @_);
+			$self->_draw_justified_line(@_);
 			last;
 		};
         /^right/i   and do 
 		{
 			$self->{render}->set_text(join(' ', @_));
 			$self->{render}->set_halign('right');
-			$self->{render}->draw($self->{right}, $y);
+			$self->{render}->draw($self->{right}, $self->{_y_pos});
 			last;
 		};
         /^center/i  and do
@@ -280,20 +382,20 @@ sub _draw_line
 			$self->{render}->set_halign('left');
 			my $x = ($self->{right} + $self->{left} - 
 				$self->{render}->get('width')) / 2;
-			$self->{render}->draw($x, $y);
+			$self->{render}->draw($x, $self->{_y_pos});
 			last;
 		};
         # default action, left justification
 		$self->{render}->set_text(join(' ', @_));
 		$self->{render}->set_halign('left');
-		$self->{render}->draw($self->{left}, $y);
+		$self->{render}->draw($self->{left}, $self->{_y_pos});
     }
 }
 
 sub _draw_justified_line
 {
 	my $self = shift;
-	my $y = shift;
+	my $y = $self->{_y_pos};
 	my $x = $self->{left};
 
 	$self->{render}->set_halign('left');
@@ -375,9 +477,6 @@ sides are specified, or maybe some other nifty things.
 More flexibility in the interface. Especially draw needs some thought.
 
 More and better error handling.
-
-Better handling of GD version before and after 1.20. This may be by
-delegation to GD::Text.
 
 Warnings for lines that are too long and stick out of the box.
 Warning for emptyish lines?

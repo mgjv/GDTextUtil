@@ -1,5 +1,9 @@
 Revision history for Perl extension GDTextUtil.
 
+Mon Sep 18 2000
+
+- Added paragraph and newline preservation
+
 Sun Apr 30 2000
 
 - Corrected GD::Wrap::AUTOLOAD not to call DESTROY in the wrong package
