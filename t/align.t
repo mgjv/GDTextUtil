@@ -104,7 +104,7 @@ if ($t->can_do_ttf)
 		ptsize => 18,
 	);
 	@bb = $t->draw(10,40);
-	print 'not ' unless ("@bb" eq "12 59 154 59 154 41 12 41" && $@ eq '');
+	print 'not ' unless ("@bb" eq "12 59 154 59 154 41 12 41");
 	printf "ok %d\n", $i++;
 
 	$rc = $t->set_font('cetus.ttf', 12);

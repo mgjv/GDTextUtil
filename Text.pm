@@ -1,4 +1,4 @@
-# $Id: Text.pm,v 1.10 1999/12/15 04:52:46 mgjv Exp $
+# $Id: Text.pm,v 1.11 1999/12/15 05:55:00 mgjv Exp $
 
 package GD::Text;
 
@@ -11,8 +11,8 @@ GD::Text - Text utilities for use with GD
   use GD;
   use GD::Text;
 
-  my $gd_text = GD::Text->new();
-  $gd_text->set_font('funny.ttf', 12) or die "Error: $@";
+  my $gd_text = GD::Text->new() or die GD::Text::error();
+  $gd_text->set_font('funny.ttf', 12) or die $gd_text->error;
   $gd_text->set_font(gdTinyFont);
   $gd_text->set_font(GD::Font::Tiny);
   ...
@@ -24,16 +24,24 @@ GD::Text - Text utilities for use with GD
 	  ...
   }
 
+Or alternatively
+
+  my $gd_text = GD::Text->new(
+        text => 'Some text',
+        font => 'funny.ttf',
+        ptsize => 14,
+    );
+
 =head1 DESCRIPTION
 
-This module provides  a font-independent way of dealing with text, for
-use with the GD::Text::* modules and GD::Graph.
+This module provides a font-independent way of dealing with text in
+GD, for use with the GD::Text::* modules and GD::Graph.
 
 =head1 NOTES
 
 As with all Modules for Perl: Please stick to using the interface. If
 you try to fiddle too much with knowledge of the internals of this
-module, you may get burned. I may change them at any time.
+module, you could get burned. I may change them at any time.
 
 You can only use TrueType fonts with version of GD > 1.20, and then
 only if compiled with support for this. If you attempt to do it
@@ -48,9 +56,11 @@ use strict;
 use GD;
 use Carp;
 
+my $ERROR;
+
 =head2 GD::Text->new( attrib => value, ... )
 
-Create a new object. 
+Create a new object. See the C<set()> method for attributes.
 
 =cut
 
@@ -68,58 +78,24 @@ sub new
     return $self
 }
 
-=head2 $gd_text->set( attrib => value, ... )
+=head2 GD::Text::error() or $gd_text->error();
+
+Return the last error that occured in the class. This may be
+imperfect.
 
 =cut
 
-# We use this to save a few CPU cycles
-my $recalc = 1;
+sub error { $ERROR };
 
-sub set
-{
-	my $self = shift;
-	$@ = "Incorrect attribute list", return if @_%2;
-	my %args = @_;
+sub _set_error { $ERROR = shift };
 
-	$@ = '';
-
-	$recalc = 0;
-	foreach (keys %args)
-	{
-		/^text$/i   and do {
-			$self->set_text($args{$_});
-			next;
-		};
-		/^font$/i   and do {
-			$self->set_font($args{$_}, $self->{ptsize}) or return;
-			next;
-		};
-		/^ptsize$/i and do {
-			$self->{ptsize} = $args{$_};
-			next;
-		};
-		$@ .= " '$_'";
-	}
-	$recalc = 1;
-	$self->_recalc();
-
-	if ($@ ne '')
-	{
-		$@ = "Illegal attribute(s):$@";
-		return;
-	}
-
-	return 1;
-}
-
-=head2 $gd_text->set_font( font attribs )
+=head2 $gd_text->set_font( font, size )
 
 Set the font to use for this string. The arguments are either a GD
 builtin font (like gdSmallFont or GD::Font->Small) or the name of a
 TrueType font file and the size of the font to use.
 
-Returns true on success, and undef on an error. if an error is returned,
-$@ will contain an error message.
+Returns true on success, false on error.
 
 =cut
 
@@ -153,12 +129,12 @@ sub _set_TTF_font
 	my $font = shift;
 	my $size = shift;
 
-	$@ = "TrueType fonts require a point size", return 
+	$ERROR = "TrueType fonts require a point size", return 
 		unless (defined $size && $size > 0);
 
 	# Check that the font exists and is a real TTF font
 	my @bb = GD::Image->stringTTF(0, $font, $size, 0, 0, 0, "foo");
-	return unless @bb;
+	$ERROR = $@, return unless @bb;
 
 	$self->{type}   = 'ttf';
 	$self->{font}   = $font;
@@ -169,7 +145,8 @@ sub _set_TTF_font
 
 =head2 $gd_text->set_text('some text')
 
-Set the text to operate on. Returns true on success and undef on error.
+Set the text to operate on. 
+Returns true on success and false on error.
 
 =cut
 
@@ -178,10 +155,74 @@ sub set_text
 	my $self = shift;
 	my $text = shift;
 
-	$@ = "No text set", return unless defined $text;
+	$ERROR = "No text set", return unless defined $text;
 
 	$self->{text} = $text;
 	$self->_recalc_width();
+}
+
+=head2 $gd_text->set( attrib => value, ... )
+
+The set method provides a convenience replacement for the various other
+C<set_xxx()> methods. Valid attributes are:
+
+=over 4
+
+=item text
+
+The text to operate on, see also C<set_text()>.
+
+=item font, ptsize
+
+The font to use and the point size. The point size is only used for
+TrueType fonts. Also see C<set_font()>.
+
+=back
+
+Returns true on success, false on any error, even if it was partially
+successful. When an error is returned, no guarantees are given about
+the correctness of the attributes.
+
+=cut
+
+# We use this to save a few CPU cycles
+my $recalc = 1;
+
+sub set
+{
+	my $self = shift;
+	$ERROR = "Incorrect attribute list", return if @_%2;
+	my %args = @_;
+
+	$ERROR = '';
+
+	$recalc = 0;
+	foreach (keys %args)
+	{
+		/^text$/i   and do {
+			$self->set_text($args{$_});
+			next;
+		};
+		/^font$/i   and do {
+			$self->set_font($args{$_}, $self->{ptsize}) or return;
+			next;
+		};
+		/^ptsize$/i and do {
+			$self->{ptsize} = $args{$_};
+			next;
+		};
+		$ERROR .= " '$_'";
+	}
+	$recalc = 1;
+	$self->_recalc();
+
+	if ($ERROR ne '')
+	{
+		$ERROR = "Illegal attribute(s):$ERROR";
+		return;
+	}
+
+	return 1;
 }
 
 =head2 $gd_text->get( attrib, ... )
@@ -190,17 +231,10 @@ Get the value of an attribute.
 Return a list of the attribute values in list context, and the value of
 the first attribute in scalar context.
 
-The attributes that can be retrieved are:
+The attributes that can be retrieved are all the ones that can be set,
+and:
 
 =over 4
-
-=item font
-
-The font in use.
-
-=item ptsize
-
-This is only useful if font is a TrueType font.
 
 =item width, height
 
@@ -219,7 +253,8 @@ char_up is equal to height, and char_down is always 0.
 =back
 
 Note that some of these parameters (char_up, char_down and space) are
-generic font properties.
+generic font properties, and not necessarily a property of the text
+that is set.
 
 =cut
 
@@ -232,10 +267,11 @@ sub get
 
 =head2 $gd_text->width('string')
 
-Return the length of a string, without changing the current value of
-the text.
-Returns the width of 'string' rendered in the current font and size.
-On failure, returns undef.
+Return the length of a string in pixels, without changing the current
+value of the text.  Returns the width of 'string' rendered in the
+current font and size.  On failure, returns undef.
+
+The use of this method is vaguely deprecated.
 
 =cut
 
@@ -246,7 +282,7 @@ sub width
 	my $save   = $self->get('text');
 
 	$self->set_text($string) or return;
-	my ($w) = $self->get('width');
+	my $w = $self->get('width');
 	$self->set_text($save);
 
 	return $w;
@@ -384,7 +420,8 @@ sub can_do_ttf
 =head1 BUGS
 
 This module has only been tested with anglo-centric 'normal' fonts and
-encodings.  Fonts that have odd characteristics may not work well.
+encodings.  Fonts that have other characteristics may not work well.
+If that happens, please let me know how to make this work better.
 
 =head1 COPYRIGHT
 

@@ -1,4 +1,4 @@
-# $Id: Align.pm,v 1.7 1999/12/15 04:52:46 mgjv Exp $
+# $Id: Align.pm,v 1.8 1999/12/15 05:55:00 mgjv Exp $
 
 package GD::Text::Align;
 
@@ -15,8 +15,8 @@ GD::Text::Align - Draw aligned strings
   # allocate colours, do other things.
 
   my $align = GD::Text::Align->new($gd
-  	valign => 'top',
-	halign => 'right',
+    valign => 'top',
+    halign => 'right',
   );
   $align->set_font('cetus.ttf', 12);
   $align->set_text('some string');
@@ -47,9 +47,10 @@ use strict;
 use GD;
 use GD::Text;
 use Carp;
-use constant PI => 4 * atan2(1,1);
 
 @GD::Text::Align::ISA = qw( GD::Text );
+
+my $ERROR;
 
 =head2 GD::Text::Align->new($gd_object, attrib => value, ...)
 
@@ -90,8 +91,8 @@ sub _init
 
 =head2 $align->set(attrib => value, ...)
 
-Set an attribute. Not all attributes can be set this way (see
-L<GD::Text> and further down), but some can:
+Set an attribute. Valid attributes are the ones discussed in
+L<GD::Text> and:
 
 =over 4
 
@@ -362,7 +363,7 @@ string rotates.
 Note that for the builtin GD fonts the only two valid angles are 0 and
 PI/2.
 
-Return true on success, false on failure.
+Returns the bounding box of the drawn string (see C<bounding_box()>).
 
 =cut
 
