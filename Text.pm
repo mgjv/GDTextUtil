@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.35 2003/02/25 00:21:44 mgjv Exp $
+# $Id: Text.pm,v 1.36 2003/06/12 01:29:47 mgjv Exp $
 
 package GD::Text;
 
-($GD::Text::prog_version) = '$Revision: 1.35 $' =~ /\s([\d.]+)/;
+($GD::Text::prog_version) = '$Revision: 1.36 $' =~ /\s([\d.]+)/;
 $GD::Text::VERSION = '0.86';
 
 =head1 NAME
@@ -279,8 +279,11 @@ sub _set_TTF_font
     {
         # This is a relative path. Replace ./path/file with
         # $cwd/path/file
+	my $oldpath = $ENV{PATH};
+	$ENV{PATH}  = "/bin:/usr/bin"; # Keep -T happy
         require Cwd;
         substr($font_file, 0, 1) = Cwd::cwd;
+	$ENV{PATH} = $oldpath;
     }
 
     # Check that the font exists and is a real TTF font
