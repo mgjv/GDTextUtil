@@ -1,4 +1,4 @@
-# $Id: Text.pm,v 1.7 1999/12/11 13:26:23 mgjv Exp $
+# $Id: Text.pm,v 1.8 1999/12/12 01:17:04 mgjv Exp $
 
 package GD::Text;
 
@@ -319,7 +319,10 @@ sub can_do_ttf
 	my $proto = shift;
 
 	my $gd = GD::Image->new(10,10);
-	# XXX is this test robust enough?
+	# XXX is this #test robust enough?
+	# It isn't. It turns out that when TTF is not compiled in, this
+	# method is still present. It just returns an error when you try to
+	# use it. This needs testing.
 	$gd->can('stringTTF');
 }
 

@@ -42,6 +42,7 @@ $wp->set_font(gdMediumBoldFont, 12);
 $gd->filledRectangle($wp->get_bounds(210,120), $red);
 $wp->draw(210,120);
 
-open(GD, '>GDWrap.png') or die $!;
+open(GD, '>GDWrap.png') or die "Cannot open GDWrap.png for write: $!";
+binmode GD ;
 print GD $gd->png();
 close GD;

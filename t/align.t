@@ -111,6 +111,7 @@ $gd->colorAllocate(127,127,127);
 $gd->line(100,0,100,200,2);
 $gd->line(0,100,200,100,2);
 
-open(GD, ">/tmp/align.png");
+open(GD, ">/tmp/align.png") or die $!;
+binmode GD;
 print GD $gd->png;
 close(GD);

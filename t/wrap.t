@@ -77,8 +77,9 @@ else
 	printf "ok %d # Skip\n", $i++ for (1 .. 3);
 }
 
-#__END__
+__END__
 #Only here to test the test.
 open(GD, '>/tmp/wrap.png') or die $!;
+binmode GD;
 print GD $gd->png();
 close GD;
