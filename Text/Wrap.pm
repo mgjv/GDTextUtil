@@ -1,8 +1,8 @@
-# $Id: Wrap.pm,v 1.15 2000/09/18 08:27:13 mgjv Exp $
+# $Id: Wrap.pm,v 1.16 2000/09/18 08:39:47 mgjv Exp $
 
 package GD::Text::Wrap;
 
-$GD::Text::Wrap::VERSION = '$Revision: 1.15 $' =~ /\s([\d.]+)/;
+$GD::Text::Wrap::VERSION = '$Revision: 1.16 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -261,7 +261,7 @@ sub _new_paragraph
 	$self->{_y_pos} += $self->{para_space};
 }
 
-sub _rev_paragraph
+sub _undo_new_paragraph
 {
 	my $self = shift;
 
@@ -300,7 +300,7 @@ sub draw
 		$self->_new_paragraph;
 	}
 
-	$self->_rev_paragraph; # FIXME Yuck
+	$self->_undo_new_paragraph; # FIXME Yuck
 
 	# Reset dry_run
 	$dry_run = 0;
@@ -318,7 +318,7 @@ sub _draw_paragraph
 	my $text = shift;
 
 	my @line = ();
-	foreach my $word (split qr/(\s+)/, $text)
+	foreach my $word (split /(\s+)/, $text)
 	{
 		# Number of newlines
 		my $nnl = $self->{preserve_nl} ? $word =~ y/\n// : 0;

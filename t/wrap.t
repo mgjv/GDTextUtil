@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..12\n"; }
+BEGIN { $| = 1; print "1..13\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use GD;
 use GD::Text::Wrap;
@@ -56,6 +56,14 @@ $wp->set(align => 'right');
 @bb2 = $wp->draw(20,10);
 print 'not ' unless "@bb" eq "@bb2";
 printf "ok %d\n", $i++;
+
+@bb = "20 10 150 143";
+$wp->set(preserve_nl => 1);
+@bb2 = $wp->draw(20,10);
+#print "$i: @bb2\n";
+print 'not ' unless "@bb" eq "@bb2";
+printf "ok %d\n", $i++;
+$wp->set(preserve_nl => 0);
 
 # TTF
 if ($wp->can_do_ttf)
