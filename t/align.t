@@ -1,7 +1,7 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
-BEGIN { $| = 1; print "1..17\n"; }
+BEGIN { $| = 1; print "1..19\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use GD;
 use GD::Text::Align;
@@ -23,6 +23,7 @@ printf "ok %d\n", $i++;
 
 # Test the default setup
 $t = GD::Text::Align->new($gd);
+#print "$@\n";
 print 'not ' unless defined $t;
 printf "ok %d\n", $i++;
 
@@ -68,8 +69,7 @@ $t->draw(100,40,PI/4 + 0.000001);
 print 'not ' unless ($t->_builtin_up);
 printf "ok %d\n", $i++;
 
-# And, finally, some bounding boxes
-
+# And some bounding boxes
 $t->set_align('bottom', 'left');
 @bb = $t->bounding_box(100,100);
 print 'not ' unless ("@bb" eq "100 100 172 100 172 85 100 85");
@@ -79,30 +79,55 @@ printf "ok %d\n", $i++;
 print 'not ' unless ("@bb" eq "100 100 100 28 85 28 85 100");
 printf "ok %d\n", $i++;
 
+# Constructor test
+$t = GD::Text::Align->new($gd,
+	valign => 'top',
+	halign => 'left',
+	text => 'Banana Boat',
+	colour => 1,
+	font => gdGiantFont,
+);
+@bb = $t->draw(10,10);
+#print "$i = @bb\n";
+print 'not ' unless ("@bb" eq "10 25 109 25 109 10 10 10");
+printf "ok %d\n", $i++;
+
 # TTF fonts
 if ($t->can_do_ttf)
 {
+	$t = GD::Text::Align->new($gd,
+		valign => 'top',
+		halign => 'left',
+		text => 'Banana Boat',
+		colour => 1,
+		font => 'cetus.ttf',
+		ptsize => 18,
+	);
+	@bb = $t->draw(10,40);
+	print 'not ' unless ("@bb" eq "12 59 154 59 154 41 12 41" && $@ eq '');
+	printf "ok %d\n", $i++;
+
 	$rc = $t->set_font('cetus.ttf', 12);
 	print 'not ' unless $rc;
 	printf "ok %d\n", $i++;
 
 	$t->set_align('bottom', 'left');
 	@bb = $t->bounding_box(100,100);
-	print 'not ' unless ("@bb" eq "100 99 155 99 155 84 100 84");
+	print 'not ' unless ("@bb" eq "101 96 194 96 194 84 101 84");
 	printf "ok %d\n", $i++;
 
 	$t->set_align('top', 'center');
 	@bb = $t->bounding_box(100,100, 4*PI/3);
-	print 'not ' unless ("@bb" eq "100 67 73 113 86 121 112 74");
+	print 'not ' unless ("@bb" eq "111 53 64 134 75 140 121 59");
 	printf "ok %d\n", $i++;
 
-	$rc = $t->draw(140,100,4*PI/3);
-	print 'not ' unless $rc;
+	@bb = $t->draw(140,100,4*PI/3);
+	print 'not ' unless ("@bb" eq "151 53 104 134 115 140 161 59");
 	printf "ok %d\n", $i++;
 }
 else
 {
-	printf "ok %d # Skip\n", $i++ for (1 .. 4);
+	printf "ok %d # Skip\n", $i++ for (1 .. 5);
 }
 
 __END__

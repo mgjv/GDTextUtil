@@ -1,4 +1,4 @@
-# $Id: Text.pm,v 1.9 1999/12/15 02:17:47 mgjv Exp $
+# $Id: Text.pm,v 1.10 1999/12/15 04:52:46 mgjv Exp $
 
 package GD::Text;
 
@@ -48,10 +48,9 @@ use strict;
 use GD;
 use Carp;
 
-=head2 GD::Text->new()
+=head2 GD::Text->new( attrib => value, ... )
 
-Create a new object. This method has one optional argument: The
-string.
+Create a new object. 
 
 =cut
 
@@ -62,11 +61,55 @@ sub new
 	my $self = { 
 			type   => 'builtin',
 			font   => gdSmallFont,
+			ptsize => 10,
 		};
     bless $self => $class;
-	$self->set_text(shift) if @_;
-	$self->_recalc();
+	$self->set(@_) or return;
     return $self
+}
+
+=head2 $gd_text->set( attrib => value, ... )
+
+=cut
+
+# We use this to save a few CPU cycles
+my $recalc = 1;
+
+sub set
+{
+	my $self = shift;
+	$@ = "Incorrect attribute list", return if @_%2;
+	my %args = @_;
+
+	$@ = '';
+
+	$recalc = 0;
+	foreach (keys %args)
+	{
+		/^text$/i   and do {
+			$self->set_text($args{$_});
+			next;
+		};
+		/^font$/i   and do {
+			$self->set_font($args{$_}, $self->{ptsize}) or return;
+			next;
+		};
+		/^ptsize$/i and do {
+			$self->{ptsize} = $args{$_};
+			next;
+		};
+		$@ .= " '$_'";
+	}
+	$recalc = 1;
+	$self->_recalc();
+
+	if ($@ ne '')
+	{
+		$@ = "Illegal attribute(s):$@";
+		return;
+	}
+
+	return 1;
 }
 
 =head2 $gd_text->set_font( font attribs )
@@ -110,7 +153,8 @@ sub _set_TTF_font
 	my $font = shift;
 	my $size = shift;
 
-	return unless (defined $size && $size > 0);
+	$@ = "TrueType fonts require a point size", return 
+		unless (defined $size && $size > 0);
 
 	# Check that the font exists and is a real TTF font
 	my @bb = GD::Image->stringTTF(0, $font, $size, 0, 0, 0, "foo");
@@ -133,7 +177,8 @@ sub set_text
 {
 	my $self = shift;
 	my $text = shift;
-	return unless defined $text;
+
+	$@ = "No text set", return unless defined $text;
 
 	$self->{text} = $text;
 	$self->_recalc_width();
@@ -214,6 +259,7 @@ sub _recalc_width
 {
 	my $self = shift;
 
+	return unless $recalc;
 	return unless (defined $self->{text} && $self->{font});
 
 	if ($self->is_builtin)
@@ -247,6 +293,7 @@ sub _recalc
 {
 	my $self = shift;
 
+	return unless $recalc;
 	return unless $self->{font};
 
 	if ($self->is_builtin)
@@ -306,10 +353,9 @@ sub is_ttf
 
 =head2 $gd_text->can_do_ttf() or GD::Text->can_do_ttf()
 
-Return true if this object can handle TTF fonts. See also the
-C<can_do_ttf()> method in L<GD::Text>.
+Return true if this object can handle TTF fonts.
 
-This depends on whether your version of GD is younger than 1.19 and
+This depends on whether your version of GD is newer than 1.19 and
 has TTF support compiled into it.
 
 =cut
@@ -319,17 +365,26 @@ sub can_do_ttf
 	my $proto = shift;
 
 	my $gd = GD::Image->new(10,10);
-	# XXX is this #test robust enough?
-	# It isn't. It turns out that when TTF is not compiled in, this
-	# method is still present. It just returns an error when you try to
-	# use it. This needs testing.
-	$gd->can('stringTTF');
+
+	# Just see whether there is a stringTTF method at all
+	$gd->can('stringTTF') or return;
+
+	# Let's check whether TTF support has been compiled in.  We don't
+	# need to worry about providing a real font. The following will
+	# always fail, but we'll check the message to see why it failed
+	GD::Image->stringTTF(0, 'foo', 10, 0, 0, 0, 'foo');
+
+	# Error message: libgd was not built with TrueType font support
+	$@ =~ /TrueType font support/i and return;
+
+	# Well.. It all seems to be fine
+	return 1;
 }
 
 =head1 BUGS
 
 This module has only been tested with anglo-centric 'normal' fonts and
-encodings.  Fonts that have odd characteristics may need some changes.
+encodings.  Fonts that have odd characteristics may not work well.
 
 =head1 COPYRIGHT
 

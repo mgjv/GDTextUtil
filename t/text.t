@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..11\n"; }
+BEGIN { $| = 1; print "1..12\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use GD;
 use GD::Text;
@@ -44,28 +44,32 @@ printf "ok %d\n", $i++;
 print 'not ' unless ($w==135 && $h==15 && $cu==15 && $cd==0);
 printf "ok %d\n", $i++;
 
+# Check that constructor with argument works
+$t = GD::Text->new(text => 'FooBar Banana', font => gdGiantFont);
+($w) = $t->get(qw(width)) if defined $t;
+print 'not ' unless (defined $t && defined $w && $w==117);
+printf "ok %d\n", $i++;
+
 if ($t->can_do_ttf)
 {
 	# Test loading of TTF
 	$rc = $t->set_font('cetus.ttf', 18);
-	print 'not ' unless (defined $rc && $t->is_ttf);
+	print 'not ' unless ($rc && $t->is_ttf);
 	printf "ok %d\n", $i++;
 
 	# Check some size parameters
-	($w, $h, $cu, $cd, $sp) = 
-		$t->get(qw(width height char_up char_down space));
-	print 'not ' unless 
-		(defined $w && $w==174 && $h==25 && $cu==19 && $cd==6 && $sp == 7);
+	@p = $t->get(qw(width height char_up char_down space));
+	print 'not ' unless ("@p" eq "173 25 19 6 7");
+	printf "ok %d\n", $i++;
+
+	# Check that constructor with argument works
+	$t = GD::Text->new(text => 'FooBar', font =>'cetus.ttf');
+	@p = $t->get(qw(width height char_up char_down space)) if defined $t;
+	print 'not ' unless (defined $t && "@p" eq "45 14 11 3 4");
 	printf "ok %d\n", $i++;
 }
 else
 {
-	printf "ok %d # Skip\n", $i++ for (1 .. 2);
+	printf "ok %d # Skip\n", $i++ for (1 .. 3);
 }
-
-# Check that constructor with argument works
-$t = GD::Text->new('FooBar');
-($w) = $t->get(qw(width));
-print 'not ' unless (defined $w && $w==36);
-printf "ok %d\n", $i++;
 

@@ -1,4 +1,4 @@
-# $Id: Align.pm,v 1.6 1999/12/11 06:13:30 mgjv Exp $
+# $Id: Align.pm,v 1.7 1999/12/15 04:52:46 mgjv Exp $
 
 package GD::Text::Align;
 
@@ -66,12 +66,11 @@ sub new
     my $gd    = shift;
     ref($gd) and $gd->isa('GD::Image') 
         or croak "Not a GD::Image object";
-	my $self = $class->SUPER::new();
+	my $self = $class->SUPER::new() or return;
 	$self->{gd} = $gd;
 	$self->_init();
 	$self->set(@_);
     bless $self => $class;
-    return $self
 }
 
 my %defaults = (
@@ -115,25 +114,29 @@ of C<$align>.
 sub set
 {
 	my $self = shift;
+	$@ = "Incorrect attribute list", return if @_%2;
 	my %args = @_;
-	my $rc = 0;
+	my @super;
 
-	$@ = '';
-
-	while (my($attrib, $value) = each %args)
+	foreach (keys %args)
 	{
-		SWITCH: for ($attrib)
-		{
-			/^valign/ and $self->set_valign($value), last SWITCH;
-			/^halign/ and $self->set_halign($value), last SWITCH;
-			/^colou?r$/ and $self->{colour} = $value, last SWITCH;
-			/^text$/ and $self->set_text($value), last SWITCH;
-			$@ .= "Illegal attribute: $attrib\n";
-			$rc++;
-		}
+		/^valign/ and do {
+			$self->set_valign($args{$_}); 
+			next;
+		};
+		/^halign/ and do {
+			$self->set_halign($args{$_}); 
+			next;
+		};
+		/^colou?r$/ and do {
+			$self->{colour} = $args{$_};
+			next;
+		};
+		# Save anything unknown to pass off to SUPER class
+		push @super, $_, $args{$_};
 	}
 
-	return !$rc;
+	$self->SUPER::set(@super);
 }
 
 =head2 $align->get(attribute)
@@ -368,8 +371,8 @@ sub draw
 	my $self = shift;
 	my ($x, $y, $angle) = @_;
 
-	defined($self->{text})   or carp("no text set!"),   return;
-	defined($self->{colour}) or carp("no colour set!"), return;
+	$@ = "No text set", return unless defined $self->{text};
+	$@ = "No colour set", return unless defined $self->{colour};
 
 	$self->_align($x, $y, $angle) or return;
 
@@ -399,7 +402,7 @@ sub draw
 		confess "impossible error in GD::Text::Align::draw";
 	}
 
-	return 1;
+	return $self->bounding_box($x, $y, $angle);
 }
 
 =head2 $align->bounding_box(x, y, angle)
@@ -425,7 +428,7 @@ sub bounding_box
 	my $self = shift;
 	my ($x, $y, $angle) = @_;
 
-	defined($self->{text}) or carp("no text set!"), return;
+	$@ = "No text set", return unless defined $self->{text};
 
 	$self->_align($x, $y, $angle) or return;
 
