@@ -1,5 +1,11 @@
 Revision history for Perl extension GDTextUtil.
 
+Sun Apr 30 2000
+
+- Corrected GD::Wrap::AUTOLOAD not to call DESTROY in the wrong package
+  (5.6.0 introduced this problem)
+- Changed Makefile.PL for 5.6.0
+
 Tue Feb 29 2000
 
 - Modified for/foreach constructs to workin 5.004_04

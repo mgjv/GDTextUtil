@@ -1,8 +1,8 @@
-# $Id: Wrap.pm,v 1.13 2000/03/18 05:56:52 mgjv Exp $
+# $Id: Wrap.pm,v 1.14 2000/04/30 04:49:39 mgjv Exp $
 
 package GD::Text::Wrap;
 
-$GD::Text::Wrap::VERSION = '$Revision: 1.13 $' =~ /\s([\d.]+)/;
+$GD::Text::Wrap::VERSION = '$Revision: 1.14 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 
@@ -336,7 +336,7 @@ sub AUTOLOAD
 {
 	my $self = shift;
 	my ($method) = $AUTOLOAD =~ /.*::(.*)$/;
-	$self->{render}->$method(@_);
+	$self->{render}->$method(@_) if ($method ne 'DESTROY');
 }
 
 =head1 NOTES

@@ -6,8 +6,9 @@ use strict;
 use Config;
 
 WriteMakefile(
-    'NAME'			=> 'GDTextUtil',
-    'VERSION_FROM' 	=> 'lib/GD/Text.pm',
+    'DISTNAME'		=> 'GDTextUtil',
+	'NAME'			=> 'GD::Text',
+    'VERSION_FROM' 	=> 'Text.pm',
 	'PREREQ_PM'		=> { 'GD' => 0 },
 	($] >= 5.005 ? (
 		 'ABSTRACT'     => 'text utilities for GD',
@@ -22,10 +23,10 @@ sub MY::postamble
 {
 qq(
 .PHONY: demo
-demo: GDWrap.png
+demo: pure_all GDWrap.png
 GDWrap.png: demo/GDWrap.pl
-	\@$Config{'perl'} -Ilib demo/GDWrap.pl
+	\@$Config{'perlpath'} -Iblib/lib demo/GDWrap.pl
 )
 }
 
-# $Id: Makefile.PL,v 1.8 2000/01/09 09:40:55 mgjv Exp $
+# $Id: Makefile.PL,v 1.9 2000/04/30 04:49:39 mgjv Exp $

@@ -30,8 +30,13 @@ Todo:
 - Alignment for the wrap boxes as a whole
 - More demo code
     
+COPYRIGHT
+
 Copyright (c) 1999 Martien Verbruggen
 mgjv@comdyn.com.au
+
+This package is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 Enclosed font: 
     Cetus by Greg Meronek, downloaded from http://www.fontpool.com/

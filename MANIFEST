@@ -4,9 +4,10 @@ Makefile.PL
 MANIFEST
 cetus.ttf
 demo/GDWrap.pl
+t/lib.pl
 t/text.t
 t/align.t
 t/wrap.t
-lib/GD/Text.pm
-lib/GD/Text/Wrap.pm
-lib/GD/Text/Align.pm
+Text.pm
+Text/Wrap.pm
+Text/Align.pm
