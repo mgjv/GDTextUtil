@@ -17,8 +17,12 @@ GD::Text - Text utilities for use with GD
   $gd_text->set_font(GD::Font::Tiny);
   ...
   $gd_text->set_text($string);
-  my $w = $gd_text->get_width();
-  my $h = $gd_text->get_height();
+  my ($w, $h) = $gd_text->get('width', 'height');
+
+  if ($gd_text->is_ttf)
+  {
+	  ...
+  }
 
 =head1 DESCRIPTION
 
@@ -31,6 +35,10 @@ As with all Modules for Perl: Please stick to using the interface. If
 you try to fiddle too much with knowledge of the internals of this
 module, you may get burned. I may change them at any time.
 
+You can only use TrueType fonts with version of GD > 1.20, and then
+only if compiled with support for this. If you attempt to do it
+anyway, you will get errors.
+
 =head1 METHODS
 
 =cut
@@ -40,10 +48,7 @@ use strict;
 use GD;
 use Carp;
 
-use constant GD_FONT_BUILTIN => 1;
-use constant GD_FONT_TTF 	 => 2;
-
-=head2 GD::Text::Wrap->new()
+=head2 GD::Text->new()
 
 Create a new object. This method does not expect any arguments.
 
@@ -54,7 +59,7 @@ sub new
     my $proto = shift;
     my $class = ref($proto) || $proto;
 	my $self = { 
-			type   => GD_FONT_BUILTIN,
+			type   => 'builtin',
 			font   => gdSmallFont,
 		};
     bless $self => $class;
@@ -88,7 +93,7 @@ sub _set_builtin_font
 	my $self = shift;
 	my $font = shift;
 
-	$self->{type}   = GD_FONT_BUILTIN;
+	$self->{type}   = 'builtin';
 	$self->{font}   = $font;
 	$self->{ptsize} = 0;
 	$self->_recalc();
@@ -107,7 +112,7 @@ sub _set_TTF_font
 	my @bb = GD::Image->stringTTF(0, $font, $size, 0, 0, 0, "foo");
 	return unless @bb;
 
-	$self->{type}   = GD_FONT_TTF;
+	$self->{type}   = 'ttf';
 	$self->{font}   = $font;
 	$self->{ptsize} = $size;
 	$self->_recalc();
@@ -225,7 +230,7 @@ Returns true if the current object is based on a builtin GD font.
 sub is_builtin
 {
 	my $self = shift; 
-	return $self->{type} == GD_FONT_BUILTIN;
+	return $self->{type} eq 'builtin';
 }
 
 =head2 $gd_text->is_ttf
@@ -237,7 +242,19 @@ Returns true if the current object is based on a TrueType font.
 sub is_ttf
 {
 	my $self = shift; 
-	return $self->{type} == GD_FONT_TTF;
+	return $self->{type} eq 'ttf';
+}
+
+=head2 $gd_text->can_do_ttf() or GD::Text->can_do_ttf()
+
+=cut
+
+sub can_do_ttf
+{
+	my $proto = shift;
+
+	my $gd = GD::Image->new(10,10);
+	$gd->can('stringTTF');
 }
 
 =head1 BUGS

@@ -38,6 +38,10 @@ As with all Modules for Perl: Please stick to using the interface. If
 you try to fiddle too much with knowledge of the internals of this
 module, you may get burned. I may change them at any time.
 
+You can only use TrueType fonts with version of GD > 1.20, and then
+only if compiled with support for this. If you attempt to do it
+anyway, you will get errors.
+
 In the following, terms like 'top', 'upper', 'left' and the like are all
 relative to the string to be drawn, not to the canvas.
 
