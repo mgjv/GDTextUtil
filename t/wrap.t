@@ -1,3 +1,6 @@
+use lib ".", "..";
+require "t/lib.pl";
+
 BEGIN { $| = 1; print "1..13\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use GD;
@@ -75,11 +78,11 @@ if ($wp->can_do_ttf)
 	# Get the bounding box
 	@bb = $wp->get_bounds(20,10);
 	#print "$i: @bb\n";
-	print 'not ' unless "@bb" eq '20 10 150 170';
+	print 'not ' unless aeq(\@bb, [qw'20 10 150 170'], 1);
 	printf "ok %d\n", $i++;
 
 	@bb2 = $wp->draw(20,10);
-	print 'not ' unless "@bb" eq "@bb2";
+	print 'not ' unless aeq(\@bb, \@bb2, 0);
 	printf "ok %d\n", $i++;
 }
 else

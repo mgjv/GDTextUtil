@@ -1,4 +1,7 @@
-BEGIN { $| = 1; print "1..18\n"; }
+use lib ".", "..";
+require "t/lib.pl";
+
+BEGIN { $| = 1; print "1..19\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use GD;
 use GD::Text;
@@ -34,7 +37,7 @@ $w = $t->width('Foobar Banana');
 print 'not ' unless (defined $w and $w == 117);
 printf "ok %d\n", $i++;
 
-# And make sure it didn't change the text in the object
+# And make sure it did not change the text in the object
 $text = $t->get('text');
 print 'not ' unless (defined $text and $text eq 'Some other text');
 printf "ok %d\n", $i++;
@@ -77,14 +80,16 @@ if ($t->can_do_ttf)
 
 	# Check multiple fonts in one go, number 2
 	$rc = $t->set_font(['cetus', gdGiantFont, 'bar'], 24);
-	@p = $t->get('font', 'ptsize');
-	#print "$i : $rc - @p\n";
-	print 'not ' unless $rc && "@p" eq "./cetus.ttf 24";
+
+        print 'not ' unless $t->get('font') =~ /cetus.ttf$/;
+	printf "ok %d\n", $i++;
+
+        print 'not ' unless $t->get('ptsize') == 24;
 	printf "ok %d\n", $i++;
 }
 else
 {
-	for (1 .. 4) { printf "ok %d # Skip\n", $i++ };
+	for (1 .. 5) { printf "ok %d # Skip\n", $i++ };
 }
 
 # Font Path tests
@@ -122,6 +127,5 @@ if ($t->can_do_ttf && $^O &&
 }
 else
 {
-	# Grumble to 5.004_04, cannot use for as modifier
 	for (1 .. 4) { printf "ok %d # Skip\n", $i++ };
 }

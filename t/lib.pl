@@ -1,12 +1,16 @@
 # allow a 2 pixel difference between the values in array ref 1 and array
 # ref 2
-sub aeq
+sub main::aeq
 {
-	my ($ar1, $ar2) = @_;
-	for (my $i = 0; $i < @$ar1; $i++)
-	{
-		return unless defined $ar2->[$i];
-		return unless abs($ar1->[$i] - $ar2->[$i]) <= 2;
-	}
-	return 1;
+    my ($a1, $a2, $e) = @_;
+    $e = 0 unless $e;
+    return 0 if @$a1 != @$a2;
+    for (my $i = 0; $i < @$a1; $i++)
+    {
+        return 0 if $a1->[$i] > $a2->[$i] + $e || 
+                    $a1->[$i] < $a2->[$i] - $e;
+    }
+    return 1;
 }
+
+1;
