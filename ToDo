@@ -1,3 +1,11 @@
+PERL5.5.650
+t/align.............ok                                                       
+t/text..............ok                                                       
+t/wrap..............ok 12/12    (in cleanup) Can't call method "DESTROY"
+on an undefined value at blib/lib/GD/Text/Wrap.pm line 337 during global
+destruction.
+t/wrap..............ok  
+
 All
 
 Instead of croak, use $@ to store an error message. Or maybe add an

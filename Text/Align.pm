@@ -1,4 +1,4 @@
-# $Id: Align.pm,v 1.9 2000/01/09 09:41:00 mgjv Exp $
+# $Id: Align.pm,v 1.10 2000/02/27 11:08:03 mgjv Exp $
 
 package GD::Text::Align;
 
@@ -50,9 +50,7 @@ use GD;
 use GD::Text;
 use Carp;
 
-@GD::Text::Align::ISA = qw( GD::Text );
-
-my $ERROR;
+@GD::Text::Align::ISA = qw(GD::Text);
 
 =head2 GD::Text::Align->new($gd_object, attrib => value, ...)
 
