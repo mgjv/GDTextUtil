@@ -20,19 +20,19 @@ print "ok 1\n";
 # of the test code):
 
 $gd = GD::Image->new(200,200);
-$white = $gd->colorAllocate(255,255,255);
-$black = $gd->colorAllocate(0,0,0);
-print 'not' unless defined $gd;
+$gd->colorAllocate(255,255,255);
+$gd->colorAllocate(0,0,0);
+print 'not ' unless defined $gd;
 print "ok 2\n";
 
 # Test the default setup
 $t = GD::Text::Align->new($gd);
-print 'not' unless defined $t;
+print 'not ' unless defined $t;
 print "ok 3\n";
 
 $t->set_text('A string');
 ($w, $h, $cu, $cd) = $t->get(qw(width height char_up char_down));
-print 'not' unless ($w==54 && $h==13 && $cu==13 && $cd==0);
+print 'not ' unless ($w==48 && $h==13 && $cu==13 && $cd==0);
 print "ok 4\n";
 #print "$w $h $cu $cd\n";
 
@@ -64,6 +64,9 @@ $t->set_valign('bottom');
 $t->draw(0,100);
 
 $rc = $t->set_font('cetus.ttf', 12);
+print 'not ' unless $rc;
+print "ok 5\n";
+
 $t->set_valign('bottom');
 $t->set_halign('left');
 $t->draw(100,200);

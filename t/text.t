@@ -23,34 +23,34 @@ print "ok 1\n";
 $t = GD::Text->new();
 $t->set_text('Some text');
 ($w, $h, $cu, $cd) = $t->get(qw(width height char_up char_down));
-print 'not' unless ($w==54 && $h==13 && $cu==13 && $cd==0);
+print 'not ' unless ($w==54 && $h==13 && $cu==13 && $cd==0);
 print "ok 2\n";
 #print "$w $h $cu $cd\n";
 
-print 'not' unless ($t->is_builtin);
+print 'not ' unless ($t->is_builtin);
 print "ok 3\n";
 
 # Change the text
 $t->set_text('Some other text');
 $w = $t->get('width');
-print 'not' unless ($w==90 && $h==13 && $cu==13 && $cd==0);
+print 'not ' unless ($w==90 && $h==13 && $cu==13 && $cd==0);
 print "ok 4\n";
 #print "$w $h $cu $cd\n";
 
 # Test loading of other builtin font
 $t->set_font(gdGiantFont);
 ($w, $h, $cu, $cd) = $t->get(qw(width height char_up char_down));
-print 'not' unless ($w==135 && $h==15 && $cu==15 && $cd==0);
+print 'not ' unless ($w==135 && $h==15 && $cu==15 && $cd==0);
 print "ok 5\n";
 #print "$w $h $cu $cd\n";
 
 # Test loading of TTF
 $rc = $t->set_font('cetus.ttf', 18);
-print 'not' unless ($t->is_ttf);
+print 'not ' unless ($t->is_ttf);
 print "ok 6\n";
 
 ($w, $h, $cu, $cd, $sp) = $t->get(qw(width height char_up char_down space));
-print 'not' unless ($rc && $w==174 && $h==23 && $cu==18 && $cd==5 && $sp == 7);
+print 'not ' unless ($rc && $w==174 && $h==23 && $cu==18 && $cd==5 && $sp == 7);
 print "ok 7\n";
 #print "$@ $w $h $cu $cd $sp\n";
 
