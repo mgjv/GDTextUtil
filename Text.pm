@@ -216,11 +216,23 @@ sub _recalc
 	return 1;
 }
 
+=head2 $gd_text->is_builtin
+
+Returns true if the current object is based on a builtin GD font.
+
+=cut
+
 sub is_builtin
 {
 	my $self = shift; 
 	return $self->{type} == GD_FONT_BUILTIN;
 }
+
+=head2 $gd_text->is_ttf
+
+Returns true if the current object is based on a TrueType font.
+
+=cut
 
 sub is_ttf
 {
@@ -230,7 +242,8 @@ sub is_ttf
 
 =head1 BUGS
 
-None that I know of, but that doesn't mean much.
+This module has only been tested with anglo-centric 'normal' fonts and
+encodings.  Fonts that have odd characteristics may need some changes.
 
 =head1 COPYRIGHT
 
