@@ -64,6 +64,28 @@ because every version of the freetype library seems to render
 differently enough for sizing to be wrong all the time. I don't think
 I'll ever re-enable them anymore.
 
+Bug Reports:
+
+When you report a bug, please include as much information as possible
+(unless you also supply a patch :)).
+The minimum set of information I need to be able to correctly assess a
+bug is:
+
+    GD::Text version
+    Perl version and OS
+    GD version
+
+If the bug relates to TrueType font rendering, I'll also need to know
+which version freetype library you linked in.
+
+If at all possible, submit a small program that demonstrates the
+problem, together with the output _you_ get on your system (remember
+that it all works fine on mine).
+
+If you're using Redhat, and have their freetype 2.0.3 library RPM
+installed, do not report bugs until you have upgraded to a later
+version.
+
 Todo:
 
 - Make the interface more flexible
