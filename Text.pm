@@ -1,9 +1,9 @@
-# $Id: Text.pm,v 1.25 2002/01/19 07:02:05 mgjv Exp $
+# $Id: Text.pm,v 1.26 2002/06/14 23:17:32 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::prog_version = '$Revision: 1.25 $' =~ /\s([\d.]+)/;
-$GD::Text::VERSION = '0.82';
+$GD::Text::prog_version = '$Revision: 1.26 $' =~ /\s([\d.]+)/;
+$GD::Text::VERSION = '0.83';
 
 =head1 NAME
 
@@ -58,6 +58,7 @@ use strict;
 
 use GD;
 use Carp;
+use Cwd;
 
 use vars qw($FONT_PATH @FONT_PATH $OS);
 BEGIN
@@ -461,13 +462,13 @@ BEGIN
     # not whitespace.
     eval {
         require POSIX; 
-        import POSIX;
+        import POSIX qw/isgraph/;
         $test_string = join '', grep isgraph($_), map chr($_), (0x00..0xFF);
     };
 
     if ($@)
     {
-        # Most likely POSIX is not available.
+        # Most likely POSIX is not available on this system.
         # Let's try to emulate isgraph(). This may be wrong at times.
         $test_string = join '', map chr($_), (0x21..0x7e, 0xa1..0xff);
     }
