@@ -1,131 +1,113 @@
+# $Id: text.t,v 1.14 2002/07/03 13:05:03 mgjv Exp $
+# Before `make install' is performed this script should be runnable with
+# `make test'. After `make install' it should work as `perl test.pl'
+
 use lib ".", "..";
 require "t/lib.pl";
 
-BEGIN { $| = 1; print "1..19\n"; }
-END {print "not ok 1\n" unless $loaded;}
-use GD;
-use GD::Text;
-$loaded = 1;
-print "ok 1\n";
+use Test::More tests => 19;
 
-$i = 2;
+use GD;
+BEGIN {use_ok "GD::Text"}
 
 # Test the default setup
 $t = GD::Text->new();
-print 'not ' unless ($t->is_builtin);
-printf "ok %d\n", $i++;
+ok ($t->is_builtin, "default font is builtin");
 
 # Check some size parameters
-$t->set_text('Some text');
+$t->set_text("Some text");
 ($w, $h, $cu, $cd) = $t->get(qw(width height char_up char_down));
-print 'not ' unless ($w==54 && $h==13 && $cu==13 && $cd==0);
-printf "ok %d\n", $i++;
+ok ($w==54 && $h==13 && $cu==13 && $cd==0, "default size params")
+    or diag("w=$w, h=$h, cu=$cu, cd=$cd");
 
 # Change the text
-$t->set_text('Some other text');
+$t->set_text("Some other text");
 $w = $t->get('width');
-print 'not ' unless ($w==90 && $h==13 && $cu==13 && $cd==0);
-printf "ok %d\n", $i++;
+ok ($w==90 && $h==13 && $cu==13 && $cd==0, "default size params 2")
+    or diag("w=$w, h=$h, cu=$cu, cd=$cd");
 
 # Test loading of other builtin font
 $t->set_font(gdGiantFont);
-print 'not ' unless ($t->is_builtin);
-printf "ok %d\n", $i++;
+ok ($t->is_builtin, "gdGiantFont builtin");
 
 # Test the width method
-$w = $t->width('Foobar Banana');
-print 'not ' unless (defined $w and $w == 117);
-printf "ok %d\n", $i++;
+$w = $t->width("Foobar Banana");
+is ($w, 117, "width method");
 
 # And make sure it did not change the text in the object
 $text = $t->get('text');
-print 'not ' unless (defined $text and $text eq 'Some other text');
-printf "ok %d\n", $i++;
+is ($text, "Some other text", "text did not change");
 
 # Now check the Giant Font parameters
 ($w, $h, $cu, $cd) = $t->get(qw(width height char_up char_down));
-print 'not ' unless ($w==135 && $h==15 && $cu==15 && $cd==0);
-printf "ok %d\n", $i++;
+ok ($w==135 && $h==15 && $cu==15 && $cd==0, "Giant font size")
+    or diag("w=$w, h=$h, cu=$cu, cd=$cd");
 
 # Check that constructor with argument works
 $t = GD::Text->new(text => 'FooBar Banana', font => gdGiantFont);
 ($w) = $t->get(qw(width)) if defined $t;
-#print "$t, $w\n";
-print 'not ' unless (defined $t && defined $w && $w==117);
-printf "ok %d\n", $i++;
+is ($w, 117, "constructor with args")
+    or diag("t=$t");
 
 # Check multiple fonts in one go, number 1
 $rc = $t->set_font(['foo', gdGiantFont, 'bar', gdTinyFont]);
-print 'not ' unless $rc;
-printf "ok %d\n", $i++;
+ok ($rc, "multiple fonts");
 
-if ($t->can_do_ttf)
+SKIP:
 {
-	# Test loading of TTF
-	$rc = $t->set_font('cetus.ttf', 18);
-	print 'not ' unless ($rc && $t->is_ttf);
-	printf "ok %d\n", $i++;
+    skip 5, "no ttf" unless ($t->can_do_ttf);
 
-	# Check some size parameters
-	@p = $t->get(qw(width height char_up char_down space));
-	print 'not ' unless ("@p" eq "173 30 24 6 7");
-	printf "ok %d\n", $i++;
+    # Test loading of TTF
+    $rc = $t->set_font('cetus.ttf', 18);
+    ok ($rc && $t->is_ttf, "ttf set_font");
 
-	# Check that constructor with argument works
-	$t = GD::Text->new(text => 'FooBar', font =>'cetus');
-	@p = $t->get(qw(width height char_up char_down space)) if defined $t;
-	#print "$i: @p\n";
-	print 'not ' unless (defined $t && "@p" eq "45 16 13 3 4");
-	printf "ok %d\n", $i++;
+    # Check some size parameters
+    @p = $t->get(qw(width height char_up char_down space));
+    is ("@p", "173 30 24 6 7","ttf size param");
 
-	# Check multiple fonts in one go, number 2
-	$rc = $t->set_font(['cetus', gdGiantFont, 'bar'], 24);
+    # Check that constructor with argument works
+    $t = GD::Text->new(text => 'FooBar', font =>'cetus');
+    @p = $t->get(qw(width height char_up char_down space)) if defined $t;
+    #print "$i: @p\n";
+    ok (defined $t && "@p" eq "45 16 13 3 4", "ttf constructor arg")
+        or diag("p = @p");
 
-        print 'not ' unless $t->get('font') =~ /cetus.ttf$/;
-	printf "ok %d\n", $i++;
+    # Check multiple fonts in one go, number 2
+    $rc = $t->set_font(['cetus', gdGiantFont, 'bar'], 24);
 
-        print 'not ' unless $t->get('ptsize') == 24;
-	printf "ok %d\n", $i++;
-}
-else
-{
-	for (1 .. 5) { printf "ok %d # Skip\n", $i++ };
+    like ($t->get('font'), '/cetus.ttf$/', "ttf multiple fonts");
+    is   ($t->get('ptsize'), 24,           "ttf multiple fonts");
 }
 
 # Font Path tests
 #
 # Only do this if we have TTF font support, and if we're on a unix-like
-# OS, will adapt this once I have support for other OS's for the font
+# OS. Will adapt this once I have support for other OS's for the font
 # path.
-if ($t->can_do_ttf && $^O &&
-		$^O !~ /^MS(DOS|Win)/i && $^O !~ /VMS/i && 
-		$^O !~ /^MacOS/i && $^O !~ /os2/i && $^O !~ /^AmigaOS/i)
+SKIP :
 {
-	# Font Path
-	$t->font_path('demo/..:/tmp');
-	$rc = GD::Text::_find_TTF('cetus', 18);
-	#print "$i: $rc\n";
-	print 'not ' unless $rc eq './cetus.ttf';
-	printf "ok %d\n", $i++;
+        skip "no tff/nonunix", 4 unless ($t->can_do_ttf && 
+                                         $^O &&
+                                         $^O !~ /^MS(DOS|Win)/i && 
+                                         $^O !~ /VMS/i && 
+                                         $^O !~ /^MacOS/i && 
+                                         $^O !~ /os2/i && 
+                                         $^O !~ /^AmigaOS/i);
 
-	$t->font_path('demo/..:.:/tmp');
-	$rc = GD::Text::_find_TTF('cetus', 18);
-	#print "$i: $rc\n";
-	print 'not ' unless $rc eq 'demo/../cetus.ttf';
-	printf "ok %d\n", $i++;
+        # Font Path
+        $t->font_path('demo/..:/tmp');
+        $rc = GD::Text::_find_TTF('cetus', 18);
+        is($rc,'./cetus.ttf', "font path no ttf");
 
-	$rc = GD::Text::_find_TTF('/usr/foo/font.ttf', 18);
-	#print "$i: $rc\n";
-	print 'not ' unless $rc eq '/usr/foo/font.ttf';
-	printf "ok %d\n", $i++;
+        $t->font_path('demo/..:.:/tmp');
+        $rc = GD::Text::_find_TTF('cetus', 18);
+        is($rc,'demo/../cetus.ttf', "font path multi");
 
-	$t->font_path(undef);
-	$rc = GD::Text::_find_TTF('cetus.ttf', 18);
-	#print "$i: $rc\n";
-	print 'not ' unless $rc eq './cetus.ttf';
-	printf "ok %d\n", $i++;
+        $rc = GD::Text::_find_TTF('/usr/foo/font.ttf', 18);
+        is($rc,'/usr/foo/font.ttf', "font path abs");
+
+        $t->font_path(undef);
+        $rc = GD::Text::_find_TTF('cetus.ttf', 18);
+        is($rc,'./cetus.ttf', "named");
 }
-else
-{
-	for (1 .. 4) { printf "ok %d # Skip\n", $i++ };
-}
+
