@@ -1,4 +1,4 @@
-# $Id: Align.pm,v 1.10 2000/02/27 11:08:03 mgjv Exp $
+# $Id: Align.pm,v 1.11 2000/02/28 23:17:44 mgjv Exp $
 
 package GD::Text::Align;
 
@@ -304,8 +304,8 @@ sub _align_builtin
 
 	($x, $y) = ($y, -$x) if ($self->_builtin_up);
 
-	$self->{x} = $x;
-	$self->{y} = $y;
+	$self->{'x'} = $x;
+	$self->{'y'} = $y;
 
 	return 1;
 }
@@ -348,8 +348,8 @@ sub _align_ttf
 		#/^base/   and $y = $y;
 	}
 
-	$self->{x} = $x;
-	$self->{y} = $y;
+	$self->{'x'} = $x;
+	$self->{'y'} = $y;
 
 	return 1;
 }
@@ -382,13 +382,13 @@ sub draw
 		if ($self->_builtin_up)
 		{
 			$self->{gd}->stringUp($self->{font}, 
-				$self->{x}, $self->{y},
+				$self->{'x'}, $self->{'y'},
 				$self->{text}, $self->{colour});
 		}
 		else
 		{
 			$self->{gd}->string($self->{font}, 
-				$self->{x}, $self->{y},
+				$self->{'x'}, $self->{'y'},
 				$self->{text}, $self->{colour});
 		}
 	}
@@ -396,7 +396,7 @@ sub draw
 	{
 		$self->{gd}->stringTTF($self->{colour}, 
 			$self->{font}, $self->{ptsize},
-			$self->{angle}, $self->{x}, $self->{y}, $self->{text});
+			$self->{angle}, $self->{'x'}, $self->{'y'}, $self->{text});
 	}
 	else
 	{
@@ -438,19 +438,19 @@ sub bounding_box
 		if ($self->_builtin_up)
 		{
 			return (
-				$self->{x} + $self->{height}, $self->{y},
-				$self->{x} + $self->{height}, $self->{y} - $self->{width},
-				$self->{x}                  , $self->{y} - $self->{width},
-				$self->{x}                  , $self->{y},
+				$self->{'x'} + $self->{height}, $self->{'y'},
+				$self->{'x'} + $self->{height}, $self->{'y'} - $self->{width},
+				$self->{'x'}                  , $self->{'y'} - $self->{width},
+				$self->{'x'}                  , $self->{'y'},
 			)
 		}
 		else
 		{
 			return (
-				$self->{x}                 , $self->{y} + $self->{height},
-				$self->{x} + $self->{width}, $self->{y} + $self->{height},
-				$self->{x} + $self->{width}, $self->{y},
-				$self->{x}                 , $self->{y},
+				$self->{'x'}                 , $self->{'y'} + $self->{height},
+				$self->{'x'} + $self->{width}, $self->{'y'} + $self->{height},
+				$self->{'x'} + $self->{width}, $self->{'y'},
+				$self->{'x'}                 , $self->{'y'},
 			)
 		}
 	}
@@ -458,7 +458,7 @@ sub bounding_box
 	{
 		return GD::Image->stringTTF($self->{colour}, 
 			$self->{font}, $self->{ptsize},
-			$self->{angle}, $self->{x}, $self->{y}, $self->{text});
+			$self->{angle}, $self->{'x'}, $self->{'y'}, $self->{text});
 	}
 	else
 	{

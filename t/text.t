@@ -84,7 +84,7 @@ if ($t->can_do_ttf)
 }
 else
 {
-	printf "ok %d # Skip\n", $i++ for (1 .. 4);
+	for (1 .. 4) { printf "ok %d # Skip\n", $i++ };
 }
 
 # Font Path tests
@@ -122,5 +122,6 @@ if ($t->can_do_ttf && $^O &&
 }
 else
 {
-	printf "ok %d # Skip\n", $i++ for (1 .. 4);
+	# Grumble to 5.004_04, cannot use for as modifier
+	for (1 .. 4) { printf "ok %d # Skip\n", $i++ };
 }

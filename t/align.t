@@ -131,7 +131,7 @@ if ($t->can_do_ttf)
 }
 else
 {
-	printf "ok %d # Skip\n", $i++ for (1 .. 5);
+	for (1..5) { printf "ok %d # Skip\n", $i++ };
 }
 
 __END__

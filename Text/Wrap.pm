@@ -1,4 +1,4 @@
-# $Id: Wrap.pm,v 1.10 2000/01/09 10:08:18 mgjv Exp $
+# $Id: Wrap.pm,v 1.11 2000/02/28 23:17:44 mgjv Exp $
 
 package GD::Text::Wrap;
 
@@ -94,7 +94,9 @@ sub _init
 	$self->{render} = GD::Text::Align->new($self->{gd}, text => 'Foo');
 	croak "Cannot allocate GD::Text::Align object" unless $self->{render};
 
-	$self->set($_, $attribs{$_}) foreach (keys %attribs);
+	# XXX 5.004_04 doesn't like foreach as a modifier
+	#$self->set($_, $attribs{$_}) foreach (keys %attribs);
+	foreach (keys %attribs) { $self->set($_, $attribs{$_}) };
 	# XXX SET DEFAULTS
 
     $self->set(

@@ -1,5 +1,10 @@
 Revision history for Perl extension GDTextUtil.
 
+Tue Feb 29 2000
+
+- Modified for/foreach constructs to workin 5.004_04
+- Quoted many hash keys to make 5.004_04 happy
+
 Sun Jan  9 2000
 
 - Added append of '.ttf' when searching for TTF font files.

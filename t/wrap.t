@@ -76,7 +76,7 @@ if ($wp->can_do_ttf)
 }
 else
 {
-	printf "ok %d # Skip\n", $i++ for (1 .. 3);
+	for (1 .. 3) { printf "ok %d # Skip\n", $i++ };
 }
 
 __END__
