@@ -1,4 +1,4 @@
-# $Id: Wrap.pm,v 1.7 1999/12/11 06:13:31 mgjv Exp $
+# $Id: Wrap.pm,v 1.8 1999/12/15 02:17:47 mgjv Exp $
 
 package GD::Text::Wrap;
 
@@ -322,8 +322,9 @@ sub _draw_justified_line
 	foreach my $word (@_)
 	{
 		$self->{render}->set_text($word);
-		push @lengths, $self->{render}->get('width');
-		$length += $self->{render}->get('width');
+		my $len = $self->{render}->get('width');
+		push @lengths, $len;
+		$length += $len;
 	}
 
 	# Calculate the average space between words

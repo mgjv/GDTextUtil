@@ -1,4 +1,4 @@
-# $Id: Text.pm,v 1.8 1999/12/12 01:17:04 mgjv Exp $
+# $Id: Text.pm,v 1.9 1999/12/15 02:17:47 mgjv Exp $
 
 package GD::Text;
 
@@ -236,9 +236,9 @@ my ($test_string, $space_string, $n_spaces);
 
 BEGIN
 {
-	# Fill test string with all printable characters, thats' the range
+	# Fill test string with all printable characters, i.e. the range
 	# from 0x21..0x7E
-	$test_string .= chr($_) for (0x21 .. 0x7E);
+	$test_string .= chr($_) for (0x21 .. 0x7e);
 	$space_string = $test_string;
 	$n_spaces = $space_string =~ s/(.{5})(.{5})/$1 $2/g;
 }
