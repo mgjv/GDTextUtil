@@ -1,4 +1,4 @@
-# $Id: Text.pm,v 1.13 2000/01/09 09:40:58 mgjv Exp $
+# $Id: Text.pm,v 1.14 2000/01/09 09:50:17 mgjv Exp $
 
 package GD::Text;
 
@@ -105,13 +105,15 @@ builtin font (like gdSmallFont or GD::Font->Small) or the name of a
 TrueType font file and the size of the font to use. See also
 L<"font_path">. As an extra, the first argument can be a reference to an
 array of fonts. The first font from the array that can be found will be
-used. This allows you to do something like:
+used. This allows you to do something like
 
-  $gd_text->font_path('/usr/share/fonts:/usr/local/share/fonts');
-  $gd_text->set_font(['verdana.ttf', 'arial.ttf', gdMediumBoldFont], 14);
+  $gd_text->font_path(
+    '/usr/share/fonts:/usr/local/share/fonts');
+  $gd_text->set_font(
+    ['verdana.ttf', 'arial.ttf', gdMediumBoldFont], 14);
 
-If you'd prefer verdana to be used, but would be satisfied with arail,
-and if none of that is available just want to make sure you can fall
+if you'd prefer verdana to be used, would be satisfied with arial, but
+if none of that is available just want to make sure you can fall
 back on something that will be available.
 
 Returns true on success, false on error.
@@ -530,8 +532,6 @@ Returns the value the font path is set to.
 
 If called without arguments C<font_path> returns the current font path.
 
-=back
-
 =cut
 
 sub font_path
@@ -540,9 +540,12 @@ sub font_path
 	if (@_)
 	{
 		$FONT_PATH = shift;
-		# clean up a bit
-		$FONT_PATH =~ s/^:+//;
-		$FONT_PATH =~ s/:+$//;
+		if ($FONT_PATH)
+		{
+			# clean up a bit
+			$FONT_PATH =~ s/^:+//;
+			$FONT_PATH =~ s/:+$//;
+		}
 	}
 	$FONT_PATH;
 }
