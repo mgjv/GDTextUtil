@@ -1,6 +1,8 @@
-# $Id: Align.pm,v 1.8 1999/12/15 05:55:00 mgjv Exp $
+# $Id: Align.pm,v 1.9 2000/01/09 09:41:00 mgjv Exp $
 
 package GD::Text::Align;
+
+$GD::Text::Align::VERSION = '0.61';
 
 =head1 NAME
 

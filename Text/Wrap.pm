@@ -1,6 +1,8 @@
-# $Id: Wrap.pm,v 1.8 1999/12/15 02:17:47 mgjv Exp $
+# $Id: Wrap.pm,v 1.9 2000/01/09 09:41:00 mgjv Exp $
 
 package GD::Text::Wrap;
+
+$GD::Text::Wrap::VERSION = '0.61';
 
 =head1 NAME
 

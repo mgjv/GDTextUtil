@@ -1,6 +1,8 @@
-# $Id: Text.pm,v 1.12 1999/12/30 04:33:42 mgjv Exp $
+# $Id: Text.pm,v 1.13 2000/01/09 09:40:58 mgjv Exp $
 
 package GD::Text;
+
+$GD::Text::VERSION = '0.65';
 
 =head1 NAME
 
@@ -56,6 +58,12 @@ use strict;
 use GD;
 use Carp;
 
+use vars qw($FONT_PATH);
+BEGIN
+{
+	$FONT_PATH =  $ENV{FONT_PATH} || $ENV{TTF_FONT_PATH};
+}
+
 my $ERROR;
 
 =head2 GD::Text->new( attrib => value, ... )
@@ -85,6 +93,7 @@ imperfect.
 
 =cut
 
+# XXX This sucks! fix it
 sub error { $ERROR };
 
 sub _set_error { $ERROR = shift };
@@ -93,7 +102,17 @@ sub _set_error { $ERROR = shift };
 
 Set the font to use for this string. The arguments are either a GD
 builtin font (like gdSmallFont or GD::Font->Small) or the name of a
-TrueType font file and the size of the font to use.
+TrueType font file and the size of the font to use. See also
+L<"font_path">. As an extra, the first argument can be a reference to an
+array of fonts. The first font from the array that can be found will be
+used. This allows you to do something like:
+
+  $gd_text->font_path('/usr/share/fonts:/usr/local/share/fonts');
+  $gd_text->set_font(['verdana.ttf', 'arial.ttf', gdMediumBoldFont], 14);
+
+If you'd prefer verdana to be used, but would be satisfied with arail,
+and if none of that is available just want to make sure you can fall
+back on something that will be available.
 
 Returns true on success, false on error.
 
@@ -102,13 +121,21 @@ Returns true on success, false on error.
 sub set_font
 {
 	my $self = shift;
-	my $font = shift;
+	my $fonts = shift;
 	my $size = shift;
 
-	return $self->_set_builtin_font($font) 
-		if (ref($font) && $font->isa('GD::Font'));
-	
-	return $self->_set_TTF_font($font, $size);
+	# Make sure we have a reference to an array
+	$fonts = [$fonts] unless ref($fonts) eq 'ARRAY';
+
+	foreach my $font (@{$fonts})
+	{
+		my $rc = ref($font) && $font->isa('GD::Font') ?
+			$self->_set_builtin_font($font) :
+			$self->_set_TTF_font($font, $size) ;
+		return $rc if $rc;
+	}
+
+	return;
 }
 
 sub _set_builtin_font
@@ -123,6 +150,45 @@ sub _set_builtin_font
 	return 1;
 }
 
+# XXX Maybe use File::Path to do most of this work?
+sub _find_TTF
+{
+	my $font = shift || return;
+	local $FONT_PATH = $FONT_PATH;
+
+	# XXX The following is too risky, and rigid
+	#$font = "$font.ttf" unless $font =~ /\.ttf/i;
+
+	# If we don't have a font path set, we just return what we got.
+	defined $FONT_PATH or return $font;
+
+	# Is this an absolute path to the font file?
+	substr($font, 0, 1) eq '/' and return $font; # unix
+	#$font =~ m#^[A-Z]:[\\/]#   and return $font; # dos
+	# mac?
+	# vms?
+	# os2?
+	# amiga?
+
+	# We have a font path, and a relative path to the font file. Let's
+	# see if the current directory is in the font path. If not, put it
+	# at the front.
+	$FONT_PATH = ".:$FONT_PATH"
+		unless $FONT_PATH eq '.'    || $FONT_PATH =~ /^\.:/ ||
+			   $FONT_PATH =~ /:\.$/ || $FONT_PATH =~ /:\.:/;
+
+	# Let's search for it
+	# What should the separator be for the various platforms? ':' for
+	# unix, ';' for DOS/Win, and the rest?
+	for my $path (split /:/, $FONT_PATH)
+	{
+		my $file = "$path/$font";
+		-f $file and return $file;
+	}
+
+	return;
+}
+
 sub _set_TTF_font
 {
 	my $self = shift;
@@ -134,12 +200,15 @@ sub _set_TTF_font
 	
 	return unless $self->can_do_ttf;
 
+	my $font_file = _find_TTF($font) or 
+		$ERROR = "Cannot find TTF font: $font", return;
+
 	# Check that the font exists and is a real TTF font
-	my @bb = GD::Image->stringTTF(0, $font, $size, 0, 0, 0, "foo");
+	my @bb = GD::Image->stringTTF(0, $font_file, $size, 0, 0, 0, "foo");
 	$ERROR = $@, return unless @bb;
 
 	$self->{type}   = 'ttf';
-	$self->{font}   = $font;
+	$self->{font}   = $font_file;
 	$self->{ptsize} = $size;
 	$self->_recalc();
 	return 1;
@@ -316,14 +385,28 @@ sub _recalc_width
 	}
 }
 
-my ($test_string, $space_string, $n_spaces);
+my ($test_string, $space_string, $n_spaces); 
 
 BEGIN
 {
-	# Fill test string with all printable characters, i.e. the range
-	# from 0x21..0x7E
-	$test_string .= chr($_) for (0x21 .. 0x7e);
+	# Build a string of all characters that are printable, and that are
+	# not whitespace.
+	eval {
+		require POSIX; 
+		import POSIX;
+		$test_string = join '', grep isgraph($_), map chr($_), (0x00..0xFF);
+	};
+
+	if ($@)
+	{
+		# Most likely POSIX is not available.
+		# Let's try to emulate isgraph(). This may be wrong at times.
+		$test_string = join '', map chr($_), (0x21..0x7e, 0xa1..0xff);
+	}
+
 	$space_string = $test_string;
+
+	# Put a space every 5 characters, and count how many there are
 	$n_spaces = $space_string =~ s/(.{5})(.{5})/$1 $2/g;
 }
 
@@ -417,11 +500,68 @@ sub can_do_ttf
 	return 1;
 }
 
+=head2 $gd_text->font_path(path_spec), GD::Text->font_path(path_spec)
+
+This sets the font path for the I<class> (i.e. not just for the object).
+The C<set_font> method will search this path to find the font specified
+if it is a TrueType font. It should contain a colon separated list of
+paths. The current directory is always searched first, unless '.' is
+present in FONT_PATH. Examples: 
+
+  GD::Text->font_path('/usr/ttfonts');
+
+Any font name that is not an absolute path will first be looked for in
+the current directory, and then in '/usr/ttfonts'.
+
+  GD::Text->font_path('/usr/ttfonts:.:lib/fonts');
+
+Any font name that is not an absolute path will first be looked for in
+/usr/ttfonts, then in the current directory. and then in lib/fonts,
+relative to the current directory.
+
+  GD::Text->font_path(undef);
+
+Font files are only looked for in the current directory.
+
+FONT_PATH is initialised at module load time from the environment
+variables FONT_PATH or, if that's not present, TTF_FONT_PATH.
+
+Returns the value the font path is set to.
+
+If called without arguments C<font_path> returns the current font path.
+
+=back
+
+=cut
+
+sub font_path
+{
+	my $proto = shift;
+	if (@_)
+	{
+		$FONT_PATH = shift;
+		# clean up a bit
+		$FONT_PATH =~ s/^:+//;
+		$FONT_PATH =~ s/:+$//;
+	}
+	$FONT_PATH;
+}
+
 =head1 BUGS
 
 This module has only been tested with anglo-centric 'normal' fonts and
 encodings.  Fonts that have other characteristics may not work well.
 If that happens, please let me know how to make this work better.
+
+The font height gets estimated by building a string with all printable
+characters that pass the POSIX::isgraph() test. If your system doesn't
+have POSIX, I make an approximation that may be false for your system.
+
+The whole font path thing works well on Unix, but probably not very well
+on other OS's. This is only a problem if you try to use a font path. If
+you don't use a font path, there should never be a problem. I will try
+to expand this in the future, but only if there's a demand for it.
+Suggestions welcome.
 
 =head1 COPYRIGHT
 

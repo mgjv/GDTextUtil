@@ -3,17 +3,29 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 
 use strict;
-
-# XXX Test for GD and test for the version.
+use Config;
 
 WriteMakefile(
     'NAME'			=> 'GDTextUtil',
-    'VERSION' 		=> '0.60',
+    'VERSION_FROM' 	=> 'lib/GD/Text.pm',
 	'PREREQ_PM'		=> { 'GD' => 0 },
-	($] >= 5.005 and (
+	($] >= 5.005 ? (
 		 'ABSTRACT'     => 'text utilities for GD',
-		 'AUTHOR'       => 'Martien Verbruggen (mgjv@comdyn.com.au)')
+		 'AUTHOR'       => 'Martien Verbruggen (mgjv@comdyn.com.au)',
+		):()
 	),
+
+	clean			=> {FILES => "GDWrap.png"},
 );
 
-# $Id: Makefile.PL,v 1.7 1999/12/30 04:33:42 mgjv Exp $
+sub MY::postamble
+{
+qq(
+.PHONY: demo
+demo: GDWrap.png
+GDWrap.png: demo/GDWrap.pl
+	\@$Config{'perl'} -Ilib demo/GDWrap.pl
+)
+}
+
+# $Id: Makefile.PL,v 1.8 2000/01/09 09:40:55 mgjv Exp $

@@ -19,7 +19,7 @@ EOSTR
 
 my $wp = GD::Text::Wrap->new($gd,
     width       => 180,
-    line_space  => 5,
+    line_space  => 4,
     color       => $black,
     text        => $text,
 );
@@ -29,7 +29,7 @@ $gd->rectangle($wp->get_bounds(10,10), $blue);
 $wp->draw(10,10);
 
 $wp->set_font('cetus.ttf', 10);
-$wp->set(align => 'justified', line_space => 2);
+$wp->set(align => 'justified', line_space => 0);
 $gd->rectangle($wp->get_bounds(210,10), $blue);
 $wp->draw(210,10);
 
@@ -37,10 +37,12 @@ $wp->set(align => 'right');
 $gd->rectangle($wp->get_bounds(10,120), $blue);
 $wp->draw(10,120);
 
-$wp->set(colour => $white, align => 'center');
+$wp->set(colour => $white, align => 'center', line_space => 2);
 $wp->set_font(gdMediumBoldFont, 12);
 $gd->filledRectangle($wp->get_bounds(210,120), $red);
 $wp->draw(210,120);
+
+print "Writing GDWrap.png\n";
 
 open(GD, '>GDWrap.png') or die "Cannot open GDWrap.png for write: $!";
 binmode GD ;

@@ -104,7 +104,8 @@ if ($t->can_do_ttf)
 		ptsize => 18,
 	);
 	@bb = $t->draw(10,40);
-	print 'not ' unless ("@bb" eq "12 59 154 59 154 41 12 41");
+	#print "$i = @bb\n";
+	print 'not ' unless ("@bb" eq "12 64 154 64 154 46 12 46");
 	printf "ok %d\n", $i++;
 
 	$rc = $t->set_font('cetus.ttf', 12);
@@ -113,16 +114,19 @@ if ($t->can_do_ttf)
 
 	$t->set_align('bottom', 'left');
 	@bb = $t->bounding_box(100,100);
+	#print "$i = @bb\n";
 	print 'not ' unless ("@bb" eq "101 96 194 96 194 84 101 84");
 	printf "ok %d\n", $i++;
 
 	$t->set_align('top', 'center');
 	@bb = $t->bounding_box(100,100, 4*PI/3);
-	print 'not ' unless ("@bb" eq "111 53 64 134 75 140 121 59");
+	#print "$i = @bb\n";
+	print 'not ' unless ("@bb" eq "109 51 62 132 73 138 119 57");
 	printf "ok %d\n", $i++;
 
 	@bb = $t->draw(140,100,4*PI/3);
-	print 'not ' unless ("@bb" eq "151 53 104 134 115 140 161 59");
+	#print "$i = @bb\n";
+	print 'not ' unless ("@bb" eq "149 51 102 132 113 138 159 57");
 	printf "ok %d\n", $i++;
 }
 else

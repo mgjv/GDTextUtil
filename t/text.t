@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..12\n"; }
+BEGIN { $| = 1; print "1..18\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use GD;
 use GD::Text;
@@ -51,6 +51,11 @@ $t = GD::Text->new(text => 'FooBar Banana', font => gdGiantFont);
 print 'not ' unless (defined $t && defined $w && $w==117);
 printf "ok %d\n", $i++;
 
+# Check multiple fonts in one go, number 1
+$rc = $t->set_font(['foo', gdGiantFont, 'bar', gdTinyFont]);
+print 'not ' unless $rc;
+printf "ok %d\n", $i++;
+
 if ($t->can_do_ttf)
 {
 	# Test loading of TTF
@@ -60,17 +65,63 @@ if ($t->can_do_ttf)
 
 	# Check some size parameters
 	@p = $t->get(qw(width height char_up char_down space));
-	print 'not ' unless ("@p" eq "173 25 19 6 7");
+	print 'not ' unless ("@p" eq "173 30 24 6 7");
 	printf "ok %d\n", $i++;
 
 	# Check that constructor with argument works
 	$t = GD::Text->new(text => 'FooBar', font =>'cetus.ttf');
 	@p = $t->get(qw(width height char_up char_down space)) if defined $t;
-	print 'not ' unless (defined $t && "@p" eq "45 14 11 3 4");
+	print 'not ' unless (defined $t && "@p" eq "45 16 13 3 4");
+	printf "ok %d\n", $i++;
+
+	# Check multiple fonts in one go, number 2
+	$rc = $t->set_font(['cetus.ttf', gdGiantFont, 'bar'], 24);
+	@p = $t->get('font', 'ptsize');
+	print 'not ' unless $rc && "@p" eq "cetus.ttf 24";
+	printf "ok %d\n", $i++;
+
+
+}
+else
+{
+	printf "ok %d # Skip\n", $i++ for (1 .. 4);
+}
+
+# Font Path tests
+#
+# Only do this if we have TTF font support, and if we're on a unix-like
+# OS, will adapt this once I have support for other OS's for the font
+# path.
+# Thanks to Lincoln Stein's CGI module
+if ($t->can_do_ttf && $^O &&
+		$^O !~ /win/i && $^O !~ /vms/i && $^O !~ /^MacOS$/i && 
+		$^O !~ /os2/i && ($^O !~ /dos/i || $^O =~ /bsdos/i))
+{
+	# Font Path
+	$t->font_path('demo/..:/tmp');
+	$rc = GD::Text::_find_TTF('cetus.ttf', 18);
+	#print "$i: $rc\n";
+	print 'not ' unless $rc eq './cetus.ttf';
+	printf "ok %d\n", $i++;
+
+	$t->font_path('demo/..:.:/tmp');
+	$rc = GD::Text::_find_TTF('cetus.ttf', 18);
+	#print "$i: $rc\n";
+	print 'not ' unless $rc eq 'demo/../cetus.ttf';
+	printf "ok %d\n", $i++;
+
+	$rc = GD::Text::_find_TTF('/usr/foo/font.ttf', 18);
+	#print "$i: $rc\n";
+	print 'not ' unless $rc eq '/usr/foo/font.ttf';
+	printf "ok %d\n", $i++;
+
+	$t->font_path(undef);
+	$rc = GD::Text::_find_TTF('cetus.ttf', 18);
+	#print "$i: $rc\n";
+	print 'not ' unless $rc eq 'cetus.ttf';
 	printf "ok %d\n", $i++;
 }
 else
 {
-	printf "ok %d # Skip\n", $i++ for (1 .. 3);
+	printf "ok %d # Skip\n", $i++ for (1 .. 4);
 }
-

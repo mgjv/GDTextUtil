@@ -1,5 +1,17 @@
 Revision history for Perl extension GDTextUtil.
 
+Sun Jan  9 2000
+
+Added font path tests.
+Allow first argument to set_font to be an array reference to various
+font names that may or may not be present.
+
+Release of 0.65
+
+Sat Jan  8 2000
+
+Added font path.
+
 0.01  Sat Dec  4 15:21:17 1999
 	- original version; created by h2xs 1.19
 
