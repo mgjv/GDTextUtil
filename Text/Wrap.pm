@@ -1,8 +1,8 @@
-# $Id: Wrap.pm,v 1.19 2003/02/20 12:23:32 mgjv Exp $
+# $Id: Wrap.pm,v 1.20 2003/02/20 12:51:29 mgjv Exp $
 
 package GD::Text::Wrap;
 
-$GD::Text::Wrap::VERSION = '$Revision: 1.19 $' =~ /\s([\d.]+)/;
+($GD::Text::Wrap::VERSION) = '$Revision: 1.20 $' =~ /\s([\d.]+)/;
 
 =head1 NAME
 

@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.32 2003/02/20 12:23:31 mgjv Exp $
+# $Id: Text.pm,v 1.33 2003/02/20 12:51:29 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::prog_version = '$Revision: 1.32 $' =~ /\s([\d.]+)/;
+($GD::Text::prog_version) = '$Revision: 1.33 $' =~ /\s([\d.]+)/;
 $GD::Text::VERSION = '0.85';
 
 =head1 NAME
