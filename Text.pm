@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.34 2003/02/21 00:10:23 mgjv Exp $
+# $Id: Text.pm,v 1.35 2003/02/25 00:21:44 mgjv Exp $
 
 package GD::Text;
 
-($GD::Text::prog_version) = '$Revision: 1.34 $' =~ /\s([\d.]+)/;
+($GD::Text::prog_version) = '$Revision: 1.35 $' =~ /\s([\d.]+)/;
 $GD::Text::VERSION = '0.86';
 
 =head1 NAME
@@ -49,6 +49,12 @@ module, you could get burned. I may change them at any time.
 You can only use TrueType fonts with version of GD > 1.20, and then
 only if compiled with support for this. If you attempt to do it
 anyway, you will get errors.
+
+If you want to refer to builtin GD fonts by their short name
+(C<gdTinyFont>, C<gdGiantFont>), you will need to C<use> the GD module
+as well as one the GD::Text modules, because it is GD that exports
+those names into your name space. If you don't like that, use the
+longer alternatives (C<GD::Font->Giant>) instead.
 
 =head1 METHODS
 

@@ -42,6 +42,8 @@ If you are certain that you have correct TTF support in your GD module,
 please contact the author of this module with as much information you
 can provide about your installation.
 
+Continuing...
+
 EOW
 }
 
@@ -70,4 +72,4 @@ GDWrap.png: demo/GDWrap.pl
 )
 }
 
-# $Id: Makefile.PL,v 1.12 2003/02/21 03:06:55 mgjv Exp $
+# $Id: Makefile.PL,v 1.13 2003/02/25 00:21:44 mgjv Exp $
