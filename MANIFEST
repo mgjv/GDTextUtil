@@ -5,6 +5,7 @@ Makefile.PL
 MANIFEST
 cetus.ttf
 t/text.t
+t/align.t
 lib/GD/Text.pm
 lib/GD/Text/Wrap.pm
 lib/GD/Text/Align.pm

@@ -1,7 +1,19 @@
+All
+
+Instead of croak, use $@ to store an error message. Or maybe add an
+attribute and method to get at the error.
+
+GD::Text::Wrap and GD::Text::Align
+
+Before drawing, check that the colour is a valid index number
+
 GD::Text::Wrap
 
+Nit:
 Make sure that _set_text only gets called once. Add some global that
-gets reset when one of the attributes changes.
+gets reset when one of the attributes changes. I'm not even sure that
+there is that much gain in saving these CPU cycles. It's more a matter
+of elegance.
 
 Adapt to use GD::Text object
 	Test that a string has been set.

@@ -17,13 +17,12 @@ magna aliquam erat volutpat.
 EOSTR
 
 my $wp = GD::Text::Wrap->new($gd,
-    font        => '/usr/share/fonts/ttfonts/Arialn.ttf',
-    font_size   => 10,
     top         => 10,
     line_space  => 4,
     color       => $black,
     text        => $text,
 );
+#$wp->set_font('/usr/share/fonts/ttfonts/Arialn.ttf', 10);
 
 #print "font: ", $wp->get('font'), "\n";
 
@@ -36,9 +35,8 @@ $wp->draw();
 $wp->set(align => 'right', left => 310, right => 440);
 $gd->rectangle($wp->get_bounds, $blue);
 $wp->draw();
-$wp->set(align => 'center', left => 40, right => 410,
-    font => '/usr/share/fonts/ttfonts/Arialnb.ttf', 
-    font_size => 12, top => 110);
+$wp->set(align => 'center', left => 40, right => 410, top => 110);
+$wp->set_font('/usr/share/fonts/ttfonts/Arialnb.ttf', 12);
 $gd->rectangle($wp->get_bounds, $blue);
 $wp->draw();
 

@@ -1,6 +1,6 @@
 package GD::Text;
 
-$GD::Text::VERSION = 1.00;
+$GD::Text::VERSION = 0.50;
 
 =head1 NAME
 
@@ -50,7 +50,8 @@ use Carp;
 
 =head2 GD::Text->new()
 
-Create a new object. This method does not expect any arguments.
+Create a new object. This method has one optional argument: The
+string.
 
 =cut
 
@@ -63,6 +64,7 @@ sub new
 			font   => gdSmallFont,
 		};
     bless $self => $class;
+	$self->set_text(shift) if @_;
     return $self
 }
 
@@ -81,11 +83,12 @@ sub set_font
 {
 	my $self = shift;
 	my $font = shift;
+	my $size = shift;
 
 	return $self->_set_builtin_font($font) 
 		if (ref($font) && $font->isa('GD::Font'));
 	
-	return $self->_set_TTF_font($font, shift);
+	return $self->_set_TTF_font($font, $size);
 }
 
 sub _set_builtin_font
@@ -179,6 +182,28 @@ sub get
 	my $self = shift;
 	my @wanted = map { $self->{$_} } @_;
 	wantarray ? @wanted : $wanted[0];
+}
+
+=head2 $gd_text->width('string')
+
+Return the length of a string, without changing the current value of
+the text.
+Returns the width of 'string' rendered in the current font and size.
+On failure, returns undef.
+
+=cut
+
+sub width
+{
+	my $self   = shift;
+	my $string = shift;
+	my $save   = $self->get('text');
+
+	$self->set_text($string) or return;
+	my ($w) = $self->get('width');
+	$self->set_text($save);
+
+	return $w;
 }
 
 # Here we do the real work. See the documentation for the get method to

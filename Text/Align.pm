@@ -1,6 +1,6 @@
 package GD::Text::Align;
 
-$GD::Text::Align::VERSION = 1.00;
+$GD::Text::Align::VERSION = 0.50;
 
 =head1 NAME
 
@@ -127,19 +127,26 @@ of C<$align>.
 
 sub set
 {
-	my $self => shift;
+	my $self = shift;
 	my %args = @_;
+	my $rc = 0;
+
+	$@ = '';
 
 	while (my($attrib, $value) = each %args)
 	{
 		SWITCH: for ($attrib)
 		{
-			/^valign$/ and $self->set_valign($value), last SWITCH;
-			/^halign$/ and $self->set_halign($value), last SWITCH;
+			/^valign/ and $self->set_valign($value), last SWITCH;
+			/^halign/ and $self->set_halign($value), last SWITCH;
 			/^colou?r$/ and $self->{colour} = $value, last SWITCH;
-			carp "Illegal attribute: $attrib";
+			/^text$/ and $self->set_text($value), last SWITCH;
+			$@ .= "Illegal attribute: $attrib\n";
+			$rc++;
 		}
 	}
+
+	return !$rc;
 }
 
 =head2 $align->get(attribute)

@@ -1,6 +1,6 @@
 package GD::Text::Wrap;
 
-$GD::Text::Wrap::VERSION = 1.00;
+$GD::Text::Wrap::VERSION = 0.50;
 
 =head1 NAME
 
@@ -21,13 +21,12 @@ GD::Text::Wrap - Wrap strings in boxes
   EOSTR
   
   my $wrapbox = GDTextWrap->new( $gd,
-      font        => '/usr/share/fonts/ttfonts/Arialn.ttf',
-      font_size   => 10,
       top         => 10,
       line_space  => 4,
       color       => $black,
       text        => $text,
   );
+  $wrapbox->set_font('cetus.ttf', 12);
   $wrapbox->set(align => 'left', left => 10, right => 140);
   $wrapbox->draw();
 
@@ -54,7 +53,7 @@ use strict;
 
 # XXX add version number to GD
 use GD;
-use GD::Text;
+use GD::Text::Align;
 use Carp;
 
 my %attribs = (
@@ -62,9 +61,6 @@ my %attribs = (
     right       => undef,
     top         => 0,
     line_space  => 2,
-    font        => '/usr/share/fonts/ttfonts/arialbd.ttf',
-    font_size   => 12,
-	colour		=> undef,
     align       => 'justified',
 	text		=> undef,
 );
@@ -94,6 +90,10 @@ sub new
 sub _init
 {
     my $self = shift;
+
+	$self->{word} = GD::Text::Align->new($self->{gd}, text => 'Foo');
+	croak "Cannot allocate GD::Text::Align object" unless $self->{word};
+
     $self->set(
 		colour => $self->{gd}->colorsTotal - 1,
 		right  => ($self->{gd}->getBounds())[0] - 1,
@@ -116,10 +116,35 @@ sub set
 		# This spelling problem keeps bugging me.
 		$attrib = 'colour' if $attrib eq 'color';
 		$attrib = 'align'  if $attrib =~ /^align/;
-		exists $attribs{$attrib} or 
-			do { carp "No attribute $_"; next };
-		$self->{$attrib} = $val;
+		SWITCH: for ($attrib)
+		{
+			exists $attribs{$attrib} and 
+				$self->{$attrib} = $val, last SWITCH;
+			
+			$self->{word}->set($attrib => $val) and last SWITCH;
+
+			carp "No attribute $attrib";
+		}
 	}
+}
+
+=head2 $wrapbox->set_font( font attributes );
+
+Set the font to use for this string. The arguments are either a GD
+builtin font (like gdSmallFont or GD::Font->Small) or the name of a
+TrueType font file and the size of the font to use.
+
+Returns true on success, and undef on an error. if an error is returned,
+$@ will contain an error message.
+
+=cut
+
+sub set_font
+{
+	my $self = shift;
+
+	# XXX check for errors and set error message
+	$self->{word}->set_font(@_);
 }
 
 =head2 $wrapbox->get( attribute );
@@ -181,45 +206,19 @@ sub draw
 	return 1;
 }
 
-sub _set_font_params
-{
-    my $self = shift;
-    my @bb1 = GD::Image->stringTTF(0, 
-        $self->{font}, $self->{font_size}, 0, 0, 0, 'Ag')
-			or return;
-    my @bb2 = GD::Image->stringTTF(0, 
-        $self->{font}, $self->{font_size}, 0, 0, 0, 'A g');
-    # Height of font above  and below the baseline
-    $self->{fh} = -$bb1[7];
-    $self->{fl} = $bb1[1];
-    # Height of font in total
-    $self->{font_height} = $self->{fh} + $self->{fl};
-    # width of a space
-    $self->{space} = ($bb2[2]-$bb2[0]) - ($bb1[2]-$bb1[0]);
-}
-
-sub _get_string_width
-{
-    my $self = shift;
-    my $string = shift;
-    my @bb = GD::Image->stringTTF(0, 
-        $self->{font}, $self->{font_size}, 0, 0, 0, $string);
-    return @bb ? ($bb[2] - $bb[0]) : undef;
-}
-
 sub _set_text
 {
     my $self = shift;
-    $self->_set_font_params() or return;
+    #$self->_set_font_params() or return;
     my $line_len = 0;
     my $line_max = $self->{right} - $self->{left};
     my (@line, @lines);
 
     foreach my $word (split ' ', $self->{text})
     {
-        my $len = $self->_get_string_width($word);
+        my $len = $self->{word}->width($word);
         my $space_used = $line_len + $len + 
-			@line * $self->{space};
+			@line * $self->{word}->get('space');
         if ($space_used > $line_max && @line)
         {
             push @lines, [$line_len, @line];
@@ -231,21 +230,27 @@ sub _set_text
     }
     push @lines, [$line_len, @line] if (@line);
 
+	# XXX
+	$self->{font} = $self->{word}->get('font');
+	$self->{font_size} = $self->{word}->get('ptsize');
+
     $self->{lines} = \@lines;
     $self->{bottom} = $self->{top} + 
-		@lines * $self->{font_height} + 
+		@lines * $self->{word}->{height} + 
         $#lines * $self->{line_space};
 }
 
 sub _draw_left
 {
     my $self = shift;
-    my $y = $self->{top} + $self->{fh};
+    my $y = $self->{top} + $self->{word}->get('char_up');
+
+	$self->{word}->set_halign('left');
 
     foreach my $line (@{$self->{lines}})
     {
         $self->_draw_left_line($line, $y);
-        $y += $self->{font_height} + $self->{line_space};
+        $y += $self->{word}->get('height') + $self->{line_space};
     }
 }
 
@@ -259,22 +264,23 @@ sub _draw_left_line
     {
         my $len  = $token->[0];
         my $word = $token->[1];
-        $self->{gd}->stringTTF($self->{colour}, 
-			$self->{font}, $self->{font_size}, 
-			0, $x, $y, $word);
-        $x += $len + $self->{space};
+		$self->{word}->set_text($word);
+		$self->{word}->draw($x, $y);
+        $x += $len + $self->{word}->get('space');
     }
 }
 
 sub _draw_right
 {
     my $self = shift;
-    my $y = $self->{top} + $self->{fh};
+    my $y = $self->{top} + $self->{word}->get('char_up');
+
+	$self->{word}->set_halign('right');
 
     foreach my $line (@{$self->{lines}})
     {
         $self->_draw_right_line($line, $y);
-        $y += $self->{font_height} + $self->{line_space};
+        $y += $self->{word}->get('height') + $self->{line_space};
     }
 }
 
@@ -288,23 +294,26 @@ sub _draw_right_line
 	{
 		my $len  = $token->[0];
 		my $word = $token->[1];
-		$x -= $len;
-		$self->{gd}->stringTTF($self->{colour}, 
-			$self->{font}, $self->{font_size}, 
-			0, $x, $y, $word);
-		$x -= $self->{space};
+		$self->{word}->set_text($word);
+		$self->{word}->draw($x, $y);
+		#$self->{gd}->stringTTF($self->{colour}, 
+			#$self->{font}, $self->{font_size}, 
+			#0, $x, $y, $word);
+		$x -= $len + $self->{word}->get('space');
 	}
 }
 
 sub _draw_center
 {
     my $self = shift;
-    my $y = $self->{top} + $self->{fh};
+    my $y = $self->{top} + $self->{word}->get('char_up');
+
+	$self->{word}->set_halign('left');
 
     foreach my $line (@{$self->{lines}})
     {
         $self->_draw_center_line($line, $y);
-        $y += $self->{font_height} + $self->{line_space};
+        $y += $self->{word}->get('height') + $self->{line_space};
     }
 }
 
@@ -314,7 +323,7 @@ sub _draw_center_line
     my ($line, $y) = @_;
     my $line_max = $self->{right} - $self->{left};
     my $space    = $line_max - $line->[0] - 
-		($#$line - 1) * $self->{space};
+		($#$line - 1) * $self->{word}->get('space');
     my $x = $self->{left} + $space/2;
 
     foreach my $token (@{$line}[1..$#$line])
@@ -322,23 +331,25 @@ sub _draw_center_line
         my $len  = $token->[0];
         my $word = $token->[1];
 
-        $self->{gd}->stringTTF($self->{colour}, 
-            $self->{font}, $self->{font_size}, 
-			0, $x, $y, $word);
-        $x += $len + $self->{space};
+		$self->{word}->set_text($word);
+		$self->{word}->draw($x, $y);
+
+        $x += $len + $self->{word}->get('space');
     }
 }
 
 sub _draw_justified
 {
     my $self = shift;
-    my $y = $self->{top} + $self->{fh};
+    my $y = $self->{top} + $self->{word}->get('char_up');
 
     foreach my $line 
 		(@{$self->{lines}}[0..($#{$self->{lines}} - 1)])
     {
+		$self->{word}->set_halign('left');
+
 		$self->_draw_justified_line($line, $y);
-        $y += $self->{font_height} + $self->{line_space};
+        $y += $self->{word}->get('height') + $self->{line_space};
     }
     $self->_draw_left_line($self->{lines}->[-1], $y);
 }
@@ -356,16 +367,15 @@ sub _draw_justified_line
         my $len  = $token->[0];
         my $word = $token->[1];
 
-        $self->{gd}->stringTTF($self->{colour}, 
-            $self->{font}, $self->{font_size}, 
-			0, $x, $y, $word);
+		$self->{word}->set_text($word);
+		$self->{word}->draw($x, $y);
+
         $x += $len + $space;
     }
     # The last word needs to be treated separately
-    $x = $self->{right} - $line->[-1]->[0];
-    $self->{gd}->stringTTF($self->{colour}, 
-        $self->{font}, $self->{font_size}, 0, $x, $y,
-        $line->[-1]->[1]);
+	$self->{word}->set_halign('right');
+	$self->{word}->set_text($line->[-1]->[1]);
+	$self->{word}->draw($self->{right}, $y);
 }
 
 $GD::Text::Wrap::VERSION;
