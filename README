@@ -22,12 +22,12 @@ Installation:
 	make demo
 	make install
 
+Demo(s) can be found in the demo directory.
+
 Todo:
 
-- Search path for TTF fonts.
 - Make the interface more flexible
 - Alignment for the wrap boxes as a whole
-- More documentation
 - More demo code
 	
 Copyright (c) 1999 Martien Verbruggen
