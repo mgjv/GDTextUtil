@@ -6,7 +6,7 @@ if ($@)
 {
     # Test::More is not available
     print "1..1\n";
-    print "ok 1 # skip Skipping all tests: No test::More\n";
+    print "ok 1 # skip Skipping all tests: No Test::More\n";
     exit 0;
 }
 

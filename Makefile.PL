@@ -26,7 +26,7 @@ eval
     GD::Image->stringTTF(0, 'foo', 10, 0, 0, 0, 'foo');
     $@ =~ /TrueType font support/i 
      	and die "Two";
-    my $test_font = File::Spec->catfile(Cwd::cwd, "Dustismo_Sans.ttf");
+    my $test_font = File::Spec->catfile(Cwd::cwd(), "Dustismo_Sans.ttf");
     GD::Image->stringTTF(0, $test_font, 10, 0, 0, 0, 'foo')
 	or die "Three: $@";
 };
@@ -72,4 +72,4 @@ GDWrap.png: demo/GDWrap.pl
 )
 }
 
-# $Id: Makefile.PL,v 1.13 2003/02/25 00:21:44 mgjv Exp $
+# $Id: Makefile.PL,v 1.14 2003/06/19 00:57:44 mgjv Exp $
