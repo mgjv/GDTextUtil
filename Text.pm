@@ -1,4 +1,4 @@
-# $Id: Text.pm,v 1.6 1999/12/11 06:13:30 mgjv Exp $
+# $Id: Text.pm,v 1.7 1999/12/11 13:26:23 mgjv Exp $
 
 package GD::Text;
 
@@ -214,7 +214,7 @@ sub _recalc_width
 {
 	my $self = shift;
 
-	return unless ($self->{text} && $self->{font});
+	return unless (defined $self->{text} && $self->{font});
 
 	if ($self->is_builtin)
 	{
@@ -230,6 +230,17 @@ sub _recalc_width
 	{
 		confess "Impossible error in GD::Text::_recalc.";
 	}
+}
+
+my ($test_string, $space_string, $n_spaces);
+
+BEGIN
+{
+	# Fill test string with all printable characters, thats' the range
+	# from 0x21..0x7E
+	$test_string .= chr($_) for (0x21 .. 0x7E);
+	$space_string = $test_string;
+	$n_spaces = $space_string =~ s/(.{5})(.{5})/$1 $2/g;
 }
 
 sub _recalc
@@ -248,14 +259,16 @@ sub _recalc
 	elsif ($self->is_ttf)
 	{
 		my @bb1 = GD::Image->stringTTF(0, 
-			$self->{font}, $self->{ptsize}, 0, 0, 0, 'Ag')
+			$self->{font}, $self->{ptsize}, 0, 0, 0, $test_string)
 				or return;
 		my @bb2 = GD::Image->stringTTF(0, 
-			$self->{font}, $self->{ptsize}, 0, 0, 0, 'A g');
+			$self->{font}, $self->{ptsize}, 0, 0, 0, $space_string);
 		$self->{char_up} = -$bb1[7];
 		$self->{char_down} = $bb1[1];
 		$self->{height} = $self->{char_up} + $self->{char_down};
-		$self->{space} = ($bb2[2]-$bb2[0]) - ($bb1[2]-$bb1[0]);
+		# XXX Should we really round this?
+		$self->{space} = sprintf "%.0f", 
+			(($bb2[2]-$bb2[0]) - ($bb1[2]-$bb1[0]))/$n_spaces;
 	}
 	else
 	{

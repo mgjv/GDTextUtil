@@ -55,7 +55,7 @@ if ($t->can_do_ttf)
 	($w, $h, $cu, $cd, $sp) = 
 		$t->get(qw(width height char_up char_down space));
 	print 'not ' unless 
-		(defined $w && $w==174 && $h==23 && $cu==18 && $cd==5 && $sp == 7);
+		(defined $w && $w==174 && $h==25 && $cu==19 && $cd==6 && $sp == 7);
 	printf "ok %d\n", $i++;
 }
 else

@@ -65,7 +65,7 @@ if ($wp->can_do_ttf)
 
 	# Get the bounding box
 	@bb = $wp->get_bounds(20,10);
-	print 'not ' unless "@bb" eq '20 10 150 134';
+	print 'not ' unless "@bb" eq '20 10 150 152';
 	printf "ok %d\n", $i++;
 
 	@bb2 = $wp->draw(20,10);
@@ -77,7 +77,7 @@ else
 	printf "ok %d # Skip\n", $i++ for (1 .. 3);
 }
 
-__END__
+#__END__
 #Only here to test the test.
 open(GD, '>/tmp/wrap.png') or die $!;
 print GD $gd->png();

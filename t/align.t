@@ -88,12 +88,12 @@ if ($t->can_do_ttf)
 
 	$t->set_align('bottom', 'left');
 	@bb = $t->bounding_box(100,100);
-	print 'not ' unless ("@bb" eq "100 100 155 100 155 85 100 85");
+	print 'not ' unless ("@bb" eq "100 99 155 99 155 84 100 84");
 	printf "ok %d\n", $i++;
 
 	$t->set_align('top', 'center');
 	@bb = $t->bounding_box(100,100, 4*PI/3);
-	print 'not ' unless ("@bb" eq "101 68 74 114 87 122 113 75");
+	print 'not ' unless ("@bb" eq "100 67 73 113 86 121 112 74");
 	printf "ok %d\n", $i++;
 
 	$rc = $t->draw(140,100,4*PI/3);
