@@ -1,4 +1,4 @@
-# $Id: Text.pm,v 1.17 2000/01/30 10:54:58 mgjv Exp $
+# $Id: Text.pm,v 1.18 2000/01/30 10:55:37 mgjv Exp $
 
 package GD::Text;
 
@@ -58,7 +58,7 @@ use strict;
 use GD;
 use Carp;
 
-use vars qw($FONT_PATH $OS);
+use vars qw($FONT_PATH @FONT_PATH $OS);
 BEGIN
 {
 	$FONT_PATH = $ENV{FONT_PATH} || $ENV{TTF_FONT_PATH} || '';
@@ -170,6 +170,8 @@ sub _find_TTF
 	my $font = shift || return;
 	local $FONT_PATH = $FONT_PATH;
 
+	# XXX MOVE A LOT OF THIS INTO THE font_path SUB, filling the
+	# @FONT_PATH array
 	my ($psep, $dsep);
 
 	if ($OS =~ /^MS(DOS|Win)/i)
@@ -225,13 +227,14 @@ sub _find_TTF
 	}
 	else
 	{
-		# XXX what about MacOS?
+		# XXX what about MacOS? It doesn't work like this on MacOS.
 		$FONT_PATH = '.';
 	}
 
 	# Let's search for it
 	for my $path (split /$dsep/, $FONT_PATH)
 	{
+		# XXX Can I use File::Basename for this?
 		my $file = "$path$psep$font";
 		#print "Trying $file\n";
 		-f $file and return $file;
