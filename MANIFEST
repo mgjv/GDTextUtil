@@ -1,0 +1,10 @@
+Changes
+ToDo
+README
+Makefile.PL
+MANIFEST
+cetus.ttf
+t/text.t
+lib/GD/Text.pm
+lib/GD/Text/Wrap.pm
+lib/GD/Text/Align.pm

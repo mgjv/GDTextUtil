@@ -1,0 +1,12 @@
+GD::Text::Wrap
+
+Make sure that _set_text only gets called once. Add some global that
+gets reset when one of the attributes changes.
+
+Adapt to use GD::Text object
+	Test that a string has been set.
+	Check that the font passed in is actually valid.
+	Change default value to a builtin?
+
+Document the internal functions.
+
