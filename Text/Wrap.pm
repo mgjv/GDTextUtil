@@ -1,8 +1,8 @@
-# $Id: Wrap.pm,v 1.9 2000/01/09 09:41:00 mgjv Exp $
+# $Id: Wrap.pm,v 1.10 2000/01/09 10:08:18 mgjv Exp $
 
 package GD::Text::Wrap;
 
-$GD::Text::Wrap::VERSION = '0.61';
+$GD::Text::Wrap::VERSION = '0.63';
 
 =head1 NAME
 
@@ -41,6 +41,12 @@ text in a box on a GD::Image canvas, using either a builtin GD font
 or a TrueType font.
 
 =head1 METHODS
+
+This class doesn't inherit from GD::Text directly, but delegates most of
+its work to it (in fact to a GD::Text::Align object. That means that
+most of the GD::Text::Align methods are available for this class,
+specifically C<set_font> and C<font_path>. Other methods and methods
+with a different interface are described here:
 
 =cut
 
@@ -126,6 +132,11 @@ Synonyms. One of 'justified' (the default), 'left', 'right' or 'center'.
 The text to draw. This is the only attribute that you absolutely have to
 set.
 
+=back
+
+As with the methods, attributes unknown to this class get delegated to
+the GD::Text::Align class. 
+
 =cut
 
 sub set
@@ -167,39 +178,6 @@ sub get
 	$attrib = 'colour' if $attrib eq 'color';
 	$attrib = 'align'  if $attrib =~ /^align/;
 	$self->{$attrib} 
-}
-
-=head2 $wrapbox->set_font( font attributes );
-
-Set the font to use for this string. The arguments are either a GD
-builtin font (like gdSmallFont or GD::Font->Small) or the name of a
-TrueType font file and the size of the font to use. See also the
-C<set_font()> method in L<GD::Text>.
-
-Returns true on success, and undef on an error. if an error is returned,
-$@ will contain an error message.
-
-=cut
-
-sub set_font
-{
-	my $self = shift;
-
-	# XXX check for errors and set error message
-	$self->{render}->set_font(@_);
-}
-
-=head2 $wrap_box->can_do_ttf()
-
-Return true if this object can handle TTF fonts. See also the
-C<can_do_ttf()> method in L<GD::Text>.
-
-=cut
-
-sub can_do_ttf
-{
-	my $self = shift;
-	$self->{render}->can_do_ttf();
 }
 
 =head2 $wrapbox->get_bounds()
@@ -346,6 +324,17 @@ sub _draw_justified_line
 	$self->{render}->set_halign('right');
 	$self->{render}->set_text($_[-1]);
 	$self->{render}->draw($self->{right}, $y);
+}
+
+
+#
+# Delegate all the woother methods to the GD::Text::Align method
+use vars qw($AUTOLOAD);
+sub AUTOLOAD
+{
+	my $self = shift;
+	my ($method) = $AUTOLOAD =~ /.*::(.*)$/;
+	$self->{render}->$method(@_);
 }
 
 =head1 NOTES

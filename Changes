@@ -5,6 +5,8 @@ Sun Jan  9 2000
 - Added font path tests.
 - Allow first argument to set_font to be an array reference to various
   font names that may or may not be present.
+- GD::Text::Wrap now uses autoloader to delegate methods to
+  GD::Text::Align
 
 Release of 0.65
 
