@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.36 2003/06/12 01:29:47 mgjv Exp $
+# $Id: Text.pm,v 1.37 2003/06/19 00:13:10 mgjv Exp $
 
 package GD::Text;
 
-($GD::Text::prog_version) = '$Revision: 1.36 $' =~ /\s([\d.]+)/;
+($GD::Text::prog_version) = '$Revision: 1.37 $' =~ /\s([\d.]+)/;
 $GD::Text::VERSION = '0.86';
 
 =head1 NAME
@@ -592,7 +592,7 @@ sub can_do_ttf
     GD::Image->stringTTF(0, 'foo', 10, 0, 0, 0, 'foo');
 
     # Error message: libgd was not built with TrueType font support
-    $@ =~ /TrueType font support/i and return;
+    $@ =~ /not built with.*font support/i and return;
 
     # Well.. It all seems to be fine
     return 1;

@@ -1,5 +1,11 @@
 Revision history for Perl extension GDTextUtil.
 
+Thu Jun 19 2003
+
+- Fixed check for TTF font support. The libgd error message changed
+  between 1.8 and 2.0
+- Release patched version
+
 Thu Feb 20 2003
 
 - Removed cetus.ttf from distribution because of copyright uncertainties
