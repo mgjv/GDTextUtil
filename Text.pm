@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.29 2003/02/04 01:55:50 mgjv Exp $
+# $Id: Text.pm,v 1.30 2003/02/04 02:06:53 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::prog_version = '$Revision: 1.29 $' =~ /\s([\d.]+)/;
+$GD::Text::prog_version = '$Revision: 1.30 $' =~ /\s([\d.]+)/;
 $GD::Text::VERSION = '0.84';
 
 =head1 NAME
@@ -475,7 +475,7 @@ BEGIN
     }
     else
     {
-        eval { require POSIX };
+        eval { local $SIG{'__WARN__'}; require POSIX };
         if ($@)
         {
             @test_chars = map chr, 0x21..0x7e, 0xa1..0xff;
@@ -647,7 +647,9 @@ If that happens, please let me know how to make this work better.
 The font height gets estimated by building a string with all printable
 characters (with an ordinal value between 0 and 255) that pass the
 POSIX::isprint() test (and not the isspace() test). If your system
-doesn't have POSIX, I make an approximation that may be false.
+doesn't have POSIX, I make an approximation that may be false. Under
+Perl 5.8.0 the [[:print:]] character class is used, since the POSIX
+is*() functions don't seem to work correctly.
 
 The whole font path thing works well on Unix, but probably not very well
 on other OS's. This is only a problem if you try to use a font path. If
