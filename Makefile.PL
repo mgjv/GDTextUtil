@@ -72,4 +72,14 @@ GDWrap.png: demo/GDWrap.pl
 )
 }
 
-# $Id: Makefile.PL,v 1.14 2003/06/19 00:57:44 mgjv Exp $
+sub MY::libscan
+{
+    my ($self, $path) = @_;
+    return if
+	$path =~ m:(^|/)\..+\.swp$:	    or
+	$path =~ m:(^|/)\.#.+\d$:	    or
+	$path =~ m:\b(RCS|CVS|SCCS)\b:	    ;
+    return $path;
+}
+
+# $Id: Makefile.PL,v 1.15 2003/06/19 01:15:51 mgjv Exp $
