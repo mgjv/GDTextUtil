@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.16 2000/01/09 12:15:10 mgjv Exp $
+# $Id: Text.pm,v 1.17 2000/01/30 10:54:58 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::VERSION = '0.67';
+$GD::Text::VERSION = '0.70';
 
 =head1 NAME
 
@@ -58,10 +58,15 @@ use strict;
 use GD;
 use Carp;
 
-use vars qw($FONT_PATH);
+use vars qw($FONT_PATH $OS);
 BEGIN
 {
-	$FONT_PATH =  $ENV{FONT_PATH} || $ENV{TTF_FONT_PATH};
+	$FONT_PATH = $ENV{FONT_PATH} || $ENV{TTF_FONT_PATH} || '';
+	unless ($OS = $^O)
+	{
+		require Config;
+		$OS = $Config::Config{'os_name'};
+	}
 }
 
 my $ERROR;
@@ -160,42 +165,78 @@ sub _set_builtin_font
 	return 1;
 }
 
-# XXX Maybe use File::Path to do most of this work?
 sub _find_TTF
 {
 	my $font = shift || return;
 	local $FONT_PATH = $FONT_PATH;
 
-	# Is this an absolute path to the font file?
-	substr($font, 0, 1) eq '/' and return $font; # unix
-	#$font =~ m#^[A-Z]:[\\/]#   and return $font; # dos
-	# mac?
-	# vms?
-	# os2?
-	# amiga?
-	# XXX What should the separator be for the various platforms? ':'
-	# for unix, ';' for DOS/Win, and the rest?
+	my ($psep, $dsep);
+
+	if ($OS =~ /^MS(DOS|Win)/i)
+	{
+		# Fix backslashes
+		$font =~ s#\\#/#g;
+		# Check for absolute path
+		$font =~ m#^([A-Za-z]:|/)# and return $font;
+		$FONT_PATH =~ s#\\#/#g; # XXX move to set_font_path?
+		$psep = '/';
+		$dsep = ';';
+	}
+=pod
+	elsif ($OS =~ /^MacOS/i)   
+	{ 
+		# Check for absolute path
+		$font =~ /:/ and $font !~ /^:/ and return $font;
+		$psep = ':';
+		$dsep = ',';
+	}
+	elsif ($OS =~ /^AmigaOS/i) 
+	{ 
+		# What's an absolute path here? 
+		$psep = '/';
+		$dsep = ':'; # XXX ?
+	}
+	elsif ($OS =~ /^VMS/i)
+	{ 
+		# What's an absolute path here? 
+		$psep = '/';
+		$dsep = ':';
+	}
+=cut
+	else
+	{
+		# Default to Unix
+		# Check for absolute path
+		substr($font, 0, 1) eq '/' and return $font;
+		$psep = '/';
+		$dsep = ':';
+	}
 
 	# If we don't have a font path set, we look in the current directory
 	# only.
-	defined $FONT_PATH or $FONT_PATH = '.';
-
-	# We have a font path, and a relative path to the font file. Let's
-	# see if the current directory is in the font path. If not, put it
-	# at the front.
-	$FONT_PATH = ".:$FONT_PATH"
-		unless $FONT_PATH eq '.'    || $FONT_PATH =~ /^\.:/ ||
-			   $FONT_PATH =~ /:\.$/ || $FONT_PATH =~ /:\.:/;
+	if ($FONT_PATH)
+	{
+		# We have a font path, and a relative path to the font file.
+		# Let's see if the current directory is in the font path. If
+		# not, put it at the front.
+		$FONT_PATH = ".$dsep$FONT_PATH"
+			unless $FONT_PATH eq '.'        || $FONT_PATH =~ /^\.$dsep/ ||
+				   $FONT_PATH =~ /$dsep\.$/ || $FONT_PATH =~ /$dsep\.$dsep/;
+	}
+	else
+	{
+		# XXX what about MacOS?
+		$FONT_PATH = '.';
+	}
 
 	# Let's search for it
-	for my $path (split /:/, $FONT_PATH)
+	for my $path (split /$dsep/, $FONT_PATH)
 	{
-		my $file = "$path/$font";
+		my $file = "$path$psep$font";
+		#print "Trying $file\n";
 		-f $file and return $file;
 		# See if we can find one with a .ttf at the end
-		# XXX This should be done in all situations, except for a full
-		# path
-		$file = "$path/$font.ttf";
+		$file = "$path$psep$font.ttf";
 		-f $file and return $file;
 	}
 
@@ -517,19 +558,22 @@ sub can_do_ttf
 
 This sets the font path for the I<class> (i.e. not just for the object).
 The C<set_font> method will search this path to find the font specified
-if it is a TrueType font. It should contain a colon separated list of
+if it is a TrueType font. It should contain a list of
 paths. The current directory is always searched first, unless '.' is
 present in FONT_PATH. Examples: 
 
-  GD::Text->font_path('/usr/ttfonts');
+  GD::Text->font_path('/usr/ttfonts'); # Unix
+  GD::Text->font_path('c:/fonts');     # MS-OS
 
 Any font name that is not an absolute path will first be looked for in
-the current directory, and then in '/usr/ttfonts'.
+the current directory, and then in /usr/ttfonts (c:\fonts).
 
-  GD::Text->font_path('/usr/ttfonts:.:lib/fonts');
+  GD::Text->font_path('/usr/ttfonts:.:lib/fonts'); # Unix
+  GD::Text->font_path('c:/fonts;.;f:/fonts');      # MS-OS
 
 Any font name that is not an absolute path will first be looked for in
-/usr/ttfonts, then in the current directory. and then in lib/fonts,
+/usr/ttfonts (c:\fonts), then in the current directory. and then in
+lib/fonts (f:\fonts),
 relative to the current directory.
 
   GD::Text->font_path(undef);
@@ -539,9 +583,12 @@ Font files are only looked for in the current directory.
 FONT_PATH is initialised at module load time from the environment
 variables FONT_PATH or, if that's not present, TTF_FONT_PATH.
 
-Returns the value the font path is set to.
+Returns the value the font path is set to.  If called without arguments
+C<font_path> returns the current font path.
 
-If called without arguments C<font_path> returns the current font path.
+Note: This currently only works for unices, and (hopefully) for
+Microsoft based OS's. If anyone feels the urge to have a look at the
+code, and send me patches for their OS, I'd be most grateful)
 
 =cut
 

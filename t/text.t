@@ -81,8 +81,6 @@ if ($t->can_do_ttf)
 	#print "$i : $rc - @p\n";
 	print 'not ' unless $rc && "@p" eq "./cetus.ttf 24";
 	printf "ok %d\n", $i++;
-
-
 }
 else
 {
