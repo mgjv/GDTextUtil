@@ -1,6 +1,6 @@
-package GD::Text::Wrap;
+# $Id: Wrap.pm,v 1.7 1999/12/11 06:13:31 mgjv Exp $
 
-$GD::Text::Wrap::VERSION = 0.50;
+package GD::Text::Wrap;
 
 =head1 NAME
 
@@ -345,8 +345,6 @@ sub _draw_justified_line
 	$self->{render}->draw($self->{right}, $y);
 }
 
-$GD::Text::Wrap::VERSION;
-
 =head1 NOTES
 
 As with all Modules for Perl: Please stick to using the interface. If
@@ -401,3 +399,4 @@ L<GD>, L<GD::Text>, L<GD::Text::Align>
 
 =cut
 
+1;

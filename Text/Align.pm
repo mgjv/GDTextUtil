@@ -1,6 +1,6 @@
-package GD::Text::Align;
+# $Id: Align.pm,v 1.6 1999/12/11 06:13:30 mgjv Exp $
 
-$GD::Text::Align::VERSION = 0.50;
+package GD::Text::Align;
 
 =head1 NAME
 
@@ -490,3 +490,4 @@ L<GD>, L<GD::Text>, L<GD::Text::Wrap>
 
 =cut
 
+1;

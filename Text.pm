@@ -1,6 +1,6 @@
-package GD::Text;
+# $Id: Text.pm,v 1.6 1999/12/11 06:13:30 mgjv Exp $
 
-$GD::Text::VERSION = 0.50;
+package GD::Text;
 
 =head1 NAME
 
@@ -65,6 +65,7 @@ sub new
 		};
     bless $self => $class;
 	$self->set_text(shift) if @_;
+	$self->_recalc();
     return $self
 }
 
@@ -135,7 +136,7 @@ sub set_text
 	return unless defined $text;
 
 	$self->{text} = $text;
-	$self->_recalc();
+	$self->_recalc_width();
 }
 
 =head2 $gd_text->get( attrib, ... )
@@ -209,7 +210,7 @@ sub width
 # Here we do the real work. See the documentation for the get method to
 # find out which attributes need to be set and/or reset
 
-sub _recalc
+sub _recalc_width
 {
 	my $self = shift;
 
@@ -217,10 +218,31 @@ sub _recalc
 
 	if ($self->is_builtin)
 	{
+		$self->{width} = $self->{font}->width() * length($self->{text});
+	}
+	elsif ($self->is_ttf)
+	{
+		my @bb1 = GD::Image->stringTTF(0, 
+			$self->{font}, $self->{ptsize}, 0, 0, 0, $self->{text});
+		$self->{width} = $bb1[2] - $bb1[0];
+	}
+	else
+	{
+		confess "Impossible error in GD::Text::_recalc.";
+	}
+}
+
+sub _recalc
+{
+	my $self = shift;
+
+	return unless $self->{font};
+
+	if ($self->is_builtin)
+	{
 		$self->{height} =
 		$self->{char_up} = $self->{font}->height();
 		$self->{char_down} = 0;
-		$self->{width} = $self->{font}->width() * length($self->{text});
 		$self->{space} = $self->{font}->width();
 	}
 	elsif ($self->is_ttf)
@@ -234,14 +256,13 @@ sub _recalc
 		$self->{char_down} = $bb1[1];
 		$self->{height} = $self->{char_up} + $self->{char_down};
 		$self->{space} = ($bb2[2]-$bb2[0]) - ($bb1[2]-$bb1[0]);
-		@bb1 = GD::Image->stringTTF(0, 
-			$self->{font}, $self->{ptsize}, 0, 0, 0, $self->{text});
-		$self->{width} = $bb1[2] - $bb1[0];
 	}
 	else
 	{
 		confess "Impossible error in GD::Text::_recalc.";
 	}
+
+	$self->_recalc_width() if $self->{text};
 
 	return 1;
 }
@@ -305,4 +326,4 @@ GD(3), GD::Text::Wrap(3), GD::Text::Align(3)
 
 =cut
 
-$GD::Text::VERSION;
+1;
