@@ -21,17 +21,16 @@ GD::Text::Wrap - Wrap strings in boxes
   EOSTR
   
   my $wrapbox = GDTextWrap->new( $gd,
-      top         => 10,
       line_space  => 4,
       color       => $black,
       text        => $text,
   );
   $wrapbox->set_font(gdMediumBoldFont);
   $wrapbox->set_font('cetus.ttf', 12);
-  $wrapbox->set(align => 'left', left => 10, right => 140);
-  $wrapbox->draw();
+  $wrapbox->set(align => 'left', width => 120);
+  $wrapbox->draw(10,140);
 
-  $gd->rectangle($wrap_box->get_bounds(), $color);
+  $gd->rectangle($wrap_box->get_bounds(10,140), $color);
 
 =head1 DESCRIPTION
 
@@ -51,9 +50,8 @@ use GD::Text::Align;
 use Carp;
 
 my %attribs = (
-    left        => 0,
-    right       => undef,
-    top         => 0,
+	width		=> undef,
+	height		=> undef,
     line_space  => 2,
     align       => 'justified',
 	text		=> undef,
@@ -93,7 +91,7 @@ sub _init
 
     $self->set(
 		colour => $self->{gd}->colorsTotal - 1,
-		right  => ($self->{gd}->getBounds())[0] - 1,
+		width  => ($self->{gd}->getBounds())[0] - 1,
 	);
 }
 
@@ -103,18 +101,10 @@ set the value for an attribute. Valid attributes are:
 
 =over 4
 
-=item left, right
+=item width
 
-The left and right boundary of the box to draw the text in. If
-unspecified, they will default to the left and right edges of the gd
-object.
-
-=item top
-
-The top of the box to draw the text in. It defaults to
-the top edge of the gd object if unspecified. Note that you cannot set
-the bottom. This will be automatically calculated, and can be retrieved
-with the C<get_bounds()> or the C<get()> method.
+The width of the box to draw the text in. If unspecified, they will
+default to the width of the GD::Image object.
 
 =item line_space
 
@@ -163,17 +153,7 @@ sub set
 =head2 $wrapbox->get( attribute );
 
 Get the current value of an attribute. All attributes mentioned under
-the C<set()> method can be retrieved, as well as
-
-=over 4
-
-=item bottom
-
-Only available after a call to either C<get_bounds()> or C<draw()>. Both
-of the aforementioned return it anyway, so it would be silly, really, to
-ask for it with this.
-
-=back
+the C<set()> method can be retrieved
 
 =cut
 
@@ -230,27 +210,38 @@ the upper left and lower right corner.
 
 Returns an empty list on error.
 
+NOTE: The return list of this method may change in a future
+implementation that allows angled boxes.
+
 =cut
+
+my $dry_run = 0;
 
 sub get_bounds
 {
     my $self = shift;
-	# This is -1, because we run the risk that people might not read the
-	# documentation, and try to pass numbers to the draw method. It's
-	# very unlikely that they'll pass -1
-    return $self->draw(-1);
+	$dry_run = 1;
+    return $self->draw(@_);
 }
 
-=head2 $wrapbox->draw()
+=head2 $wrapbox->draw(x, y)
 
-Draw the box. Returns the same values as the C<getbounds()> method.
+Draw the box, with (x,y) as the top right corner. 
+Returns the same values as the C<getbounds()> method.
+
+NOTE: The return list of this method may change in a future
+implementation that allows angled boxes.
 
 =cut
 
 sub draw
 {
-    my $self = shift;
-	my $dry_run = shift;
+    my $self 		= shift;
+	$self->{left} 	= shift or return;
+	$self->{top} 	= shift or return;
+	$self->{angle} 	= shift || 0; #unused
+
+	$self->{right} = $self->{left} + $self->{width};
 
 	return unless $self->{text};
 
@@ -261,15 +252,17 @@ sub draw
         my $len = $self->{render}->width(join(' ', @line, $word));
 		if ($len > $self->{right} - $self->{left} && @line)
 		{
-			$self->_draw_line(0, $y, @line) 
-				unless $dry_run && $dry_run == -1;
+			$self->_draw_line(0, $y, @line) unless $dry_run;
 			@line = ();
 			$y += $self->{render}->get('height') + $self->{line_space};
 		}
 		push @line, $word;
 	}
 	# take care of the last line
-	$self->_draw_line(1, $y, @line) unless $dry_run && $dry_run == -1;
+	$self->_draw_line(1, $y, @line) unless $dry_run;
+
+	# Reset dry_run
+	$dry_run = 0;
 
 	$self->{bottom} = $y + $self->{render}->get('char_down');
     return (
@@ -375,6 +368,8 @@ problems with exotic fonts, or locales and character encodings that I am
 not used to.
 
 =head1 TODO
+
+Angled boxes.
 
 At the moment, the only bit of the box that is allowed to be unspecified
 and in fact must be unspecified, is the bottom. If there is enough need

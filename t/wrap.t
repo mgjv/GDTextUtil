@@ -29,30 +29,30 @@ $wp = GD::Text::Wrap->new($gd, text => $text);
 print 'not ' unless defined $wp;
 printf "ok %d\n", $i++;
 
-$wp->set(align => 'left', top => 10, left => 20, right => 150);
+$wp->set(align => 'left', width => 130);
 
 # Get the bounding box
-@bb = $wp->get_bounds();
+@bb = $wp->get_bounds(20,10);
 print 'not ' unless "@bb" eq '20 10 150 128';
 printf "ok %d\n", $i++;
 
-# Draw, and chekck that the result is the same
-@bb2 = $wp->draw();
+# Draw, and check that the result is the same
+@bb2 = $wp->draw(20,10);
 print 'not ' unless "@bb" eq "@bb2";
 printf "ok %d\n", $i++;
 
 $wp->set(align => 'left');
-@bb2 = $wp->draw();
+@bb2 = $wp->draw(20,10);
 print 'not ' unless "@bb" eq "@bb2";
 printf "ok %d\n", $i++;
 
 $wp->set(align => 'justified');
-@bb2 = $wp->draw();
+@bb2 = $wp->draw(20,10);
 print 'not ' unless "@bb" eq "@bb2";
 printf "ok %d\n", $i++;
 
 $wp->set(align => 'right');
-@bb2 = $wp->draw();
+@bb2 = $wp->draw(20,10);
 print 'not ' unless "@bb" eq "@bb2";
 printf "ok %d\n", $i++;
 
@@ -64,11 +64,11 @@ if ($wp->can_do_ttf)
 	printf "ok %d\n", $i++;
 
 	# Get the bounding box
-	@bb = $wp->get_bounds();
+	@bb = $wp->get_bounds(20,10);
 	print 'not ' unless "@bb" eq '20 10 150 134';
 	printf "ok %d\n", $i++;
 
-	@bb2 = $wp->draw();
+	@bb2 = $wp->draw(20,10);
 	print 'not ' unless "@bb" eq "@bb2";
 	printf "ok %d\n", $i++;
 }

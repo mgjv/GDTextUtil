@@ -18,30 +18,29 @@ magna aliquam erat volutpat.
 EOSTR
 
 my $wp = GD::Text::Wrap->new($gd,
-    top         => 10,
+    width       => 180,
     line_space  => 5,
     color       => $black,
     text        => $text,
 );
-$wp->set(align => 'left', left => 10, right => 190);
-$gd->rectangle($wp->get_bounds, $blue);
-$wp->draw();
+
+$wp->set(align => 'left');
+$gd->rectangle($wp->get_bounds(10,10), $blue);
+$wp->draw(10,10);
 
 $wp->set_font('cetus.ttf', 10);
-$wp->set(align => 'justified', line_space => 2, left => 210, right => 390);
-$gd->rectangle($wp->get_bounds, $blue);
-$wp->draw();
+$wp->set(align => 'justified', line_space => 2);
+$gd->rectangle($wp->get_bounds(210,10), $blue);
+$wp->draw(210,10);
 
-$wp->set(top => 120);
+$wp->set(align => 'right');
+$gd->rectangle($wp->get_bounds(10,120), $blue);
+$wp->draw(10,120);
 
-$wp->set(align => 'right', left => 10, right => 190);
-$gd->rectangle($wp->get_bounds, $blue);
-$wp->draw();
-
-$wp->set(colour => $white, align => 'center', left => 210, right => 390);
+$wp->set(colour => $white, align => 'center');
 $wp->set_font(gdMediumBoldFont, 12);
-$gd->filledRectangle($wp->get_bounds, $red);
-$wp->draw();
+$gd->filledRectangle($wp->get_bounds(210,120), $red);
+$wp->draw(210,120);
 
 open(GD, '>GDWrap.png') or die $!;
 print GD $gd->png();

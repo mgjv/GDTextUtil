@@ -12,7 +12,7 @@ use strict;
 
 WriteMakefile(
     'NAME'			=> 'GDTextUtil',
-    'VERSION' 		=> '0.50',
+    'VERSION' 		=> '0.52',
 	'PREREQ_PM'		=> { 'GD' => 0 },
 	($] >= 5.005 and (
 		 'ABSTRACT'     => 'text utilities for GD',
@@ -20,4 +20,4 @@ WriteMakefile(
 	),
 );
 
-# $Id: Makefile.PL,v 1.2 1999/12/09 22:07:02 mgjv Exp $
+# $Id: Makefile.PL,v 1.3 1999/12/11 01:39:28 mgjv Exp $
