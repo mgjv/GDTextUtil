@@ -1,8 +1,8 @@
-# $Id: Text.pm,v 1.14 2000/01/09 09:50:17 mgjv Exp $
+# $Id: Text.pm,v 1.15 2000/01/09 12:04:49 mgjv Exp $
 
 package GD::Text;
 
-$GD::Text::VERSION = '0.65';
+$GD::Text::VERSION = '0.67';
 
 =head1 NAME
 
@@ -103,18 +103,26 @@ sub _set_error { $ERROR = shift };
 Set the font to use for this string. The arguments are either a GD
 builtin font (like gdSmallFont or GD::Font->Small) or the name of a
 TrueType font file and the size of the font to use. See also
-L<"font_path">. As an extra, the first argument can be a reference to an
-array of fonts. The first font from the array that can be found will be
-used. This allows you to do something like
+L<"font_path">. 
 
-  $gd_text->font_path(
-    '/usr/share/fonts:/usr/local/share/fonts');
+If you are not using an absolute path to the font file, you can leave of
+the .ttf file extension, but you have to append it for absolute paths:
+
+  $gd_text->set_font('cetus', 12);
+  # but
+  $gd_text->set_font('/usr/fonts/cetus.ttf', 12);
+
+The first argument can be a reference to an array of fonts. The first
+font from the array that can be found will be used. This allows you to
+do something like
+
+  $gd_text->font_path( '/usr/share/fonts:/usr/fonts');
   $gd_text->set_font(
-    ['verdana.ttf', 'arial.ttf', gdMediumBoldFont], 14);
+    ['verdana', 'arial', gdMediumBoldFont], 14);
 
 if you'd prefer verdana to be used, would be satisfied with arial, but
 if none of that is available just want to make sure you can fall
-back on something that will be available.
+back on something that will be available. 
 
 Returns true on success, false on error.
 
@@ -158,12 +166,6 @@ sub _find_TTF
 	my $font = shift || return;
 	local $FONT_PATH = $FONT_PATH;
 
-	# XXX The following is too risky, and rigid
-	#$font = "$font.ttf" unless $font =~ /\.ttf/i;
-
-	# If we don't have a font path set, we just return what we got.
-	defined $FONT_PATH or return $font;
-
 	# Is this an absolute path to the font file?
 	substr($font, 0, 1) eq '/' and return $font; # unix
 	#$font =~ m#^[A-Z]:[\\/]#   and return $font; # dos
@@ -171,6 +173,12 @@ sub _find_TTF
 	# vms?
 	# os2?
 	# amiga?
+	# XXX What should the separator be for the various platforms? ':'
+	# for unix, ';' for DOS/Win, and the rest?
+
+	# If we don't have a font path set, we look in the current directory
+	# only.
+	defined $FONT_PATH or $FONT_PATH = '.';
 
 	# We have a font path, and a relative path to the font file. Let's
 	# see if the current directory is in the font path. If not, put it
@@ -180,11 +188,14 @@ sub _find_TTF
 			   $FONT_PATH =~ /:\.$/ || $FONT_PATH =~ /:\.:/;
 
 	# Let's search for it
-	# What should the separator be for the various platforms? ':' for
-	# unix, ';' for DOS/Win, and the rest?
 	for my $path (split /:/, $FONT_PATH)
 	{
 		my $file = "$path/$font";
+		-f $file and return $file;
+		# See if we can find one with a .ttf at the end
+		# XXX This should be done in all situations, except for a full
+		# path
+		$file = "$path/$font.ttf";
 		-f $file and return $file;
 	}
 

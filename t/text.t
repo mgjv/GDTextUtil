@@ -69,15 +69,17 @@ if ($t->can_do_ttf)
 	printf "ok %d\n", $i++;
 
 	# Check that constructor with argument works
-	$t = GD::Text->new(text => 'FooBar', font =>'cetus.ttf');
+	$t = GD::Text->new(text => 'FooBar', font =>'cetus');
 	@p = $t->get(qw(width height char_up char_down space)) if defined $t;
+	#print "$i: @p\n";
 	print 'not ' unless (defined $t && "@p" eq "45 16 13 3 4");
 	printf "ok %d\n", $i++;
 
 	# Check multiple fonts in one go, number 2
-	$rc = $t->set_font(['cetus.ttf', gdGiantFont, 'bar'], 24);
+	$rc = $t->set_font(['cetus', gdGiantFont, 'bar'], 24);
 	@p = $t->get('font', 'ptsize');
-	print 'not ' unless $rc && "@p" eq "cetus.ttf 24";
+	#print "$i : $rc - @p\n";
+	print 'not ' unless $rc && "@p" eq "./cetus.ttf 24";
 	printf "ok %d\n", $i++;
 
 
@@ -92,20 +94,19 @@ else
 # Only do this if we have TTF font support, and if we're on a unix-like
 # OS, will adapt this once I have support for other OS's for the font
 # path.
-# Thanks to Lincoln Stein's CGI module
 if ($t->can_do_ttf && $^O &&
-		$^O !~ /win/i && $^O !~ /vms/i && $^O !~ /^MacOS$/i && 
-		$^O !~ /os2/i && ($^O !~ /dos/i || $^O =~ /bsdos/i))
+		$^O !~ /^MS(DOS|Win)/i && $^O !~ /VMS/i && 
+		$^O !~ /^MacOS/i && $^O !~ /os2/i && $^O !~ /^AmigaOS/i)
 {
 	# Font Path
 	$t->font_path('demo/..:/tmp');
-	$rc = GD::Text::_find_TTF('cetus.ttf', 18);
+	$rc = GD::Text::_find_TTF('cetus', 18);
 	#print "$i: $rc\n";
 	print 'not ' unless $rc eq './cetus.ttf';
 	printf "ok %d\n", $i++;
 
 	$t->font_path('demo/..:.:/tmp');
-	$rc = GD::Text::_find_TTF('cetus.ttf', 18);
+	$rc = GD::Text::_find_TTF('cetus', 18);
 	#print "$i: $rc\n";
 	print 'not ' unless $rc eq 'demo/../cetus.ttf';
 	printf "ok %d\n", $i++;
@@ -118,7 +119,7 @@ if ($t->can_do_ttf && $^O &&
 	$t->font_path(undef);
 	$rc = GD::Text::_find_TTF('cetus.ttf', 18);
 	#print "$i: $rc\n";
-	print 'not ' unless $rc eq 'cetus.ttf';
+	print 'not ' unless $rc eq './cetus.ttf';
 	printf "ok %d\n", $i++;
 }
 else
