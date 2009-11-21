@@ -1,10 +1,23 @@
 # vim swap files
 \..+.swp$
 
-# CVS work files and directories
+# version control work files and directories
 CVS/
 \.#.+\d$
 .cvsignore
+.gitignore
+.git
 
 # demo output
 demo/.*\.png$
+
+# local files
+bug_test
+Dustismo.zip
+ToDo
+
+# Perl stuff
+blib
+Makefile
+pm_to_blib
+MANIFEST.SKIP
