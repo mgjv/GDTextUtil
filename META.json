@@ -1,0 +1,42 @@
+{
+   "abstract" : "text utilities for GD",
+   "author" : [
+      "Martien Verbruggen (mgjv@comdyn.com.au)"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "ExtUtils::MakeMaker version 7.3, CPAN::Meta::Converter version 2.150010",
+   "license" : [
+      "unknown"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : 2
+   },
+   "name" : "GDTextUtil",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "inc"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "GD" : "1"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "version" : "0.86",
+   "x_serialization_backend" : "JSON::PP version 2.94"
+}
